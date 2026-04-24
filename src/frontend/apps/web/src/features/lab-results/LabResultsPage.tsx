@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { CrossModuleLinks } from '../../shared/components/CrossModuleLinks';
-import { fetchResultLines, updateResultLine } from './labResults.api';
-import type { ResultLineItem } from './labResults.types';
+import { fetchResultLines, sendSuggestionFeedback, suggestConclusion, updateResultLine } from './labResults.api';
+import type { AiConclusionSuggestion, ResultLineItem } from './labResults.types';
 
 type StatusFilter = 'todos' | 'pendientes' | 'validados';
 type FormatFilter = 'todos' | 'texto' | 'panel';
@@ -260,6 +260,8 @@ export function LabResultsPage() {
   const [paramDraft, setParamDraft] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [listVersion, setListVersion] = useState(0);
+  const [aiLoadingLineId, setAiLoadingLineId] = useState<number | null>(null);
+  const [aiByLineId, setAiByLineId] = useState<Record<number, AiConclusionSuggestion>>({});
 
   useEffect(() => {
     setPage(1);
@@ -346,6 +348,61 @@ export function LabResultsPage() {
       setError(`No se pudo ${actionText} el resultado. ${(e as Error).message}`);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function requestAiSuggestion(line: ResultLineItem) {
+    const isPanel = line.resultFormat === 'panel';
+    const isCurrentEditing = editingId === line.lineId;
+    const parameterValues = isPanel
+      ? (isCurrentEditing ? paramDraft : line.resultParameterValues)
+      : {};
+    setAiLoadingLineId(line.lineId);
+    setError(null);
+    try {
+      const suggestion = await suggestConclusion(line.lineId, {
+        lineId: line.lineId,
+        orderId: line.orderId,
+        examCode: line.examCode,
+        examName: line.examName,
+        resultFormat: line.resultFormat,
+        patientName: line.patientName ?? null,
+        patientSex: null,
+        patientAgeYears: null,
+        existingNotes: (isCurrentEditing ? draft : line.resultNotes) ?? null,
+        parameters: (line.resultFieldDefinitions ?? []).map((d) => ({
+          name: d.name,
+          value: parameterValues[d.name] ?? null,
+          unit: d.unit ?? null,
+          referenceText: d.referenceText ?? null,
+        })),
+        locale: 'es-HN',
+      });
+      setAiByLineId((prev) => ({ ...prev, [line.lineId]: suggestion }));
+    } catch (e) {
+      setError(`No se pudo generar sugerencia IA. ${(e as Error).message}`);
+    } finally {
+      setAiLoadingLineId(null);
+    }
+  }
+
+  async function registerAiFeedback(line: ResultLineItem, accepted: boolean) {
+    const suggestion = aiByLineId[line.lineId];
+    if (!suggestion) {
+      return;
+    }
+    try {
+      await sendSuggestionFeedback(line.lineId, {
+        orderId: line.orderId,
+        examCode: line.examCode,
+        examName: line.examName,
+        accepted,
+        confidenceLevel: suggestion.confidenceLevel,
+        disclaimer: suggestion.disclaimer,
+        referencesCount: suggestion.references.length,
+      });
+    } catch {
+      // No bloqueamos el flujo del laboratorista por falla de auditoría auxiliar.
     }
   }
 
@@ -566,16 +623,128 @@ export function LabResultsPage() {
                               placeholder="Conclusión clínica, observaciones, recomendación, etc."
                             />
                           </div>
+                          {aiByLineId[row.lineId] && (
+                            <div style={{ border: '1px solid #bfdbfe', borderRadius: 8, padding: 8, background: '#f8fbff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                                <strong style={{ fontSize: 12 }}>Sugerencia IA</strong>
+                                <span className="pro-pill" style={{ fontSize: 11 }}>
+                                  Confianza: {aiByLineId[row.lineId].confidenceLevel}
+                                </span>
+                              </div>
+                              <p style={{ margin: '6px 0', fontSize: 12, lineHeight: 1.4 }}>
+                                {aiByLineId[row.lineId].draftConclusion}
+                              </p>
+                              <p className="pro-muted" style={{ margin: '6px 0', fontSize: 11 }}>
+                                {aiByLineId[row.lineId].disclaimer}
+                              </p>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                {aiByLineId[row.lineId].references.map((reference, idx) => (
+                                  <a key={`${row.lineId}-ref-${idx}`} href={reference.url} target="_blank" rel="noreferrer" className="pro-content-link" style={{ fontSize: 11 }}>
+                                    {reference.source}
+                                  </a>
+                                ))}
+                              </div>
+                              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                <button
+                                  type="button"
+                                  className="pro-ghost is-small"
+                                  onClick={() => {
+                                    setDraft((prev) => {
+                                      const aiText = aiByLineId[row.lineId].draftConclusion.trim();
+                                      if (!prev.trim()) {
+                                        return aiText;
+                                      }
+                                      return `${prev.trim()}\n\n${aiText}`;
+                                    });
+                                    void registerAiFeedback(row, true);
+                                  }}
+                                >
+                                  Insertar en notas
+                                </button>
+                                <button
+                                  type="button"
+                                  className="pro-ghost is-small"
+                                  onClick={() => {
+                                    void registerAiFeedback(row, false);
+                                    setAiByLineId((prev) => {
+                                      const next = { ...prev };
+                                      delete next[row.lineId];
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  Descartar
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : isEd && row.resultFormat === 'texto' ? (
-                        <textarea
-                          className="pro-input"
-                          value={draft}
-                          onChange={(e) => setDraft(e.target.value)}
-                          rows={4}
-                          style={{ height: 'auto', minHeight: 64, fontSize: 13, resize: 'vertical', width: '100%' }}
-                          placeholder="Texto libre (valor, observacion, etc.)"
-                        />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <textarea
+                            className="pro-input"
+                            value={draft}
+                            onChange={(e) => setDraft(e.target.value)}
+                            rows={4}
+                            style={{ height: 'auto', minHeight: 64, fontSize: 13, resize: 'vertical', width: '100%' }}
+                            placeholder="Texto libre (valor, observacion, etc.)"
+                          />
+                          {aiByLineId[row.lineId] && (
+                            <div style={{ border: '1px solid #bfdbfe', borderRadius: 8, padding: 8, background: '#f8fbff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                                <strong style={{ fontSize: 12 }}>Sugerencia IA</strong>
+                                <span className="pro-pill" style={{ fontSize: 11 }}>
+                                  Confianza: {aiByLineId[row.lineId].confidenceLevel}
+                                </span>
+                              </div>
+                              <p style={{ margin: '6px 0', fontSize: 12, lineHeight: 1.4 }}>
+                                {aiByLineId[row.lineId].draftConclusion}
+                              </p>
+                              <p className="pro-muted" style={{ margin: '6px 0', fontSize: 11 }}>
+                                {aiByLineId[row.lineId].disclaimer}
+                              </p>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                {aiByLineId[row.lineId].references.map((reference, idx) => (
+                                  <a key={`${row.lineId}-txt-ref-${idx}`} href={reference.url} target="_blank" rel="noreferrer" className="pro-content-link" style={{ fontSize: 11 }}>
+                                    {reference.source}
+                                  </a>
+                                ))}
+                              </div>
+                              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                <button
+                                  type="button"
+                                  className="pro-ghost is-small"
+                                  onClick={() => {
+                                    setDraft((prev) => {
+                                      const aiText = aiByLineId[row.lineId].draftConclusion.trim();
+                                      if (!prev.trim()) {
+                                        return aiText;
+                                      }
+                                      return `${prev.trim()}\n\n${aiText}`;
+                                    });
+                                    void registerAiFeedback(row, true);
+                                  }}
+                                >
+                                  Insertar en notas
+                                </button>
+                                <button
+                                  type="button"
+                                  className="pro-ghost is-small"
+                                  onClick={() => {
+                                    void registerAiFeedback(row, false);
+                                    setAiByLineId((prev) => {
+                                      const next = { ...prev };
+                                      delete next[row.lineId];
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  Descartar
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         (() => {
                           const p = resultPreview(row);
@@ -663,6 +832,14 @@ export function LabResultsPage() {
                           </button>
                           <button
                             type="button"
+                            className="pro-ghost is-small"
+                            onClick={() => void requestAiSuggestion(row)}
+                            disabled={saving || aiLoadingLineId === row.lineId}
+                          >
+                            {aiLoadingLineId === row.lineId ? 'IA generando…' : 'Sugerir IA'}
+                          </button>
+                          <button
+                            type="button"
                             className="pro-button"
                             style={{ minWidth: 0, fontSize: 12, height: 34 }}
                             onClick={() => void saveLine(row, true)}
@@ -675,6 +852,17 @@ export function LabResultsPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           <button type="button" className="pro-ghost is-small" onClick={() => setEditingId(row.lineId)}>
                             Editar
+                          </button>
+                          <button
+                            type="button"
+                            className="pro-ghost is-small"
+                            onClick={() => {
+                              setEditingId(row.lineId);
+                              void requestAiSuggestion(row);
+                            }}
+                            disabled={aiLoadingLineId === row.lineId}
+                          >
+                            {aiLoadingLineId === row.lineId ? 'IA generando…' : 'Sugerir IA'}
                           </button>
                           <button type="button" className="pro-ghost is-small" onClick={() => printResultLine(row)}>
                             Imprimir

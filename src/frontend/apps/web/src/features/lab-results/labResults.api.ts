@@ -1,5 +1,5 @@
 import { authJson } from '../../shared/api/authFetch';
-import type { PagedResult, ResultLineItem } from './labResults.types';
+import type { AiConclusionSuggestion, PagedResult, ResultLineItem } from './labResults.types';
 
 export function fetchResultLines(
   search: string,
@@ -48,5 +48,50 @@ export function updateResultLine(
       resultParameterValues: payload.resultParameterValues,
       markValidated: payload.markValidated,
     },
+  });
+}
+
+export function suggestConclusion(
+  lineId: number,
+  payload: {
+    lineId: number;
+    orderId: number;
+    examCode: string;
+    examName: string;
+    resultFormat: string;
+    patientName: string | null;
+    patientSex: string | null;
+    patientAgeYears: number | null;
+    existingNotes: string | null;
+    parameters: Array<{
+      name: string;
+      value: string | null;
+      unit: string | null;
+      referenceText: string | null;
+    }>;
+    locale: string;
+  }
+): Promise<AiConclusionSuggestion> {
+  return authJson<AiConclusionSuggestion>(`/api/lab-results/lines/${lineId}/suggest-conclusion`, {
+    method: 'POST',
+    json: payload,
+  });
+}
+
+export function sendSuggestionFeedback(
+  lineId: number,
+  payload: {
+    orderId: number;
+    examCode: string;
+    examName: string;
+    accepted: boolean;
+    confidenceLevel: string;
+    disclaimer: string;
+    referencesCount: number;
+  }
+): Promise<void> {
+  return authJson<void>(`/api/lab-results/lines/${lineId}/suggest-conclusion/feedback`, {
+    method: 'POST',
+    json: payload,
   });
 }

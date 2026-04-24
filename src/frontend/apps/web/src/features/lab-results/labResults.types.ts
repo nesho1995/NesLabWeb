@@ -23,3 +23,20 @@ export type ResultLineItem = {
   validatedAtUtc: string | null;
   validatedByName: string | null;
 };
+
+export type AiConclusionReference = {
+  title: string;
+  url: string;
+  source: string;
+  publishedAtUtc: string | null;
+};
+
+export type AiConclusionSuggestion = {
+  draftConclusion: string;
+  interpretation: string;
+  suggestedFollowUp: string;
+  limitations: string;
+  disclaimer: string;
+  confidenceLevel: string;
+  references: AiConclusionReference[];
+};

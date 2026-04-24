@@ -42,6 +42,14 @@ public static class DependencyInjection
         services.AddScoped<ILabDashboardService, LabDashboardService>();
         services.AddScoped<IReagentInventoryService, ReagentInventoryService>();
         services.AddScoped<IOfflineSyncService, OfflineSyncService>();
+        var aiBaseUrl = configuration["AiAssistant:BaseUrl"] ?? "http://127.0.0.1:8091";
+        var aiTimeoutSeconds = Math.Clamp(configuration.GetValue<int?>("AiAssistant:TimeoutSeconds") ?? 8, 3, 30);
+        services.AddHttpClient<IClinicalConclusionAssistant, PythonClinicalConclusionAssistant>(
+            client =>
+            {
+                client.BaseAddress = new Uri(aiBaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(aiTimeoutSeconds);
+            });
 
         return services;
     }
