@@ -26,6 +26,16 @@ Sistema web para laboratorio clinico (LIS) con foco en operacion diaria, cumplim
 - [Manual de uso](docs/MANUAL-USO.md)
 - [Manual tecnico de instalacion](docs/INSTALACION-TECNICA.md)
 - [Operacion sin internet](docs/OPERACION-SIN-INTERNET.md)
+- [Profesionalizacion operativa](docs/PROFESIONALIZACION-OPERATIVA.md)
+- [Plan de contingencia y recuperacion](docs/PLAN-CONTINGENCIA-RECUPERACION.md)
+- [Checklist fiscal/compliance](docs/FISCAL-COMPLIANCE-CHECKLIST.md)
+- [Acta de validacion fiscal](docs/ACTA-VALIDACION-FISCAL.md)
+- [Plan de pruebas formales](docs/PLAN-PRUEBAS-FORMALES.md)
+- [Pruebas E2E](docs/PRUEBAS-E2E.md)
+- [Monitoreo y alertas](docs/MONITOREO-ALERTAS.md)
+- [Operacion Linux en produccion](docs/PRODUCCION-LINUX-OPS.md)
+- [SLA de soporte](docs/SLA-SOPORTE.md)
+- [Proceso de tickets](docs/PROCESO-TICKETS.md)
 
 ## Inicio rapido (desarrollo)
 

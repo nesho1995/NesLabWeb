@@ -112,6 +112,17 @@ dotnet publish -c Release -o ./publish
 3. Forzar HTTPS en proxy.
 4. Configurar reinicio automatico del servicio.
 
+### 6.2.1 Operacion Linux (backups, monitoreo, alertas)
+
+- Scripts Linux listos en: `scripts/ops/linux`.
+- Guia de activacion: `docs/PRODUCCION-LINUX-OPS.md`.
+- Incluye:
+  - Monitoreo de health y latencia.
+  - Monitoreo de frescura de backup.
+  - Backup MySQL diario.
+  - Smoke diario.
+  - Alertas webhook.
+
 ## 7. Checklist de salida a produccion
 
 - [ ] Backup de base de datos previo al despliegue.
@@ -140,6 +151,7 @@ Pruebas minimas:
 - Programar backup diario de DB.
 - Revisar logs de API por errores de sincronizacion.
 - Actualizar dependencias en ventanas de mantenimiento.
+- En Linux, usar cron segun `docs/PRODUCCION-LINUX-OPS.md`.
 
 ## 10. Pipeline sugerido (CI/CD)
 

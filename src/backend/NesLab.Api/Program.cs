@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NesLab.Application.Abstractions;
 using NesLab.Application.Interfaces;
+using NesLab.Api.Operations;
 using NesLab.Api.Security;
 using NesLab.Infrastructure;
 using NesLab.Infrastructure.Persistence;
@@ -19,6 +20,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ICriticalActionLogWriter, FileCriticalActionLogWriter>();
 builder.Services.AddScoped<ICurrentUserContext, HttpUserContext>();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCors(options =>
@@ -39,6 +41,10 @@ var jwtSecret = builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("Jwt:Secret is required.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "NesLabWeb";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "NesLabWebClient";
+if (builder.Environment.IsProduction() && jwtSecret.Contains("ChangeInProduction", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException("Jwt:Secret must be replaced in production.");
+}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -85,6 +91,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+else
+{
+    app.UseHsts();
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -100,11 +110,20 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+    await next();
+});
 app.UseCors("Frontend");
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<CriticalActionAuditMiddleware>();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
