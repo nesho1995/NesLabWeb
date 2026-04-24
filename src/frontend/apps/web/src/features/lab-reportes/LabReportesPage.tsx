@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { CrossModuleLinks } from '../../shared/components/CrossModuleLinks';
 import { getFinanceSummary, getLabDashboard } from './labDashboard.api';
