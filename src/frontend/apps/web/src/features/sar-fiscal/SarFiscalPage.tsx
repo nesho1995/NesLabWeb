@@ -195,7 +195,7 @@ export function SarFiscalPage() {
               { to: '/orders', label: 'Nueva orden', show: hasPermission('ORDEN.CREATE') },
               { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
               { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
-              { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+              { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
               { to: '/admin/empresa-caja', label: 'Política de caja', show: hasPermission('EMPRESA.CONFIG') },
             ]}
           />

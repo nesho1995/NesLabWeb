@@ -193,7 +193,7 @@ export function InventoryPage() {
           items={[
             { to: '/admin/catalogo-examenes', label: 'Catalogo de examenes', show: hasPermission('EMPRESA.CONFIG') },
             { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
-            { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+            { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
           ]}
         />
       </div>

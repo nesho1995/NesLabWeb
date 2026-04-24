@@ -46,7 +46,7 @@ function ForbiddenPage() {
           { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
           { to: '/orders', label: 'Nueva orden', show: hasPermission('ORDEN.CREATE') },
           { to: '/patients', label: 'Pacientes', show: hasPermission('PACIENTE.READ') },
-          { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+          { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
           { to: '/finanzas/estado', label: 'Estado financiero', show: hasAnyPermission(['CAJA.CERRAR', 'RESULTADOS.VALIDAR', 'ORDEN.READ']) },
           { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
           { to: '/admin/users', label: 'Usuarios', show: hasPermission('USUARIO.READ') },

@@ -114,14 +114,14 @@ export function PaymentMethodsPage() {
         </p>
         <p className="pro-muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
           <Link to="/admin/empresa-caja" className="pro-content-link">
-            Politica de caja
+            Configuracion de caja
           </Link>
-          <span> — turnos diarios y caja chica; debe cuadrar con arqueo y cierre.</span>
+          <span> — caja chica y metodos que entran al arqueo.</span>
         </p>
         <CrossModuleLinks
           marginTop={8}
           items={[
-            { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+            { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
             { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
             { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
             { to: '/admin/users', label: 'Usuarios', show: hasPermission('USUARIO.READ') },

@@ -44,7 +44,7 @@ export function HomePage() {
             { to: '/orders', label: 'Nueva orden a cobrar', show: has('ORDEN.CREATE') },
             { to: '/patients', label: 'Pacientes', show: has('PACIENTE.READ') },
             { to: '/lab/resultados', label: 'Resultados', show: has('RESULTADOS.VALIDAR') },
-            { to: '/caja/cierre', label: 'Cerrar caja', show: has('CAJA.CERRAR') },
+            { to: '/caja/cierre', label: 'Caja', show: has('CAJA.CERRAR') },
             { to: '/sar', label: 'SAR e ISV', show: has('FISCAL.READ') },
           ]}
         />

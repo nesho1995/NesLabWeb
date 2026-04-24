@@ -23,6 +23,7 @@ export function CashClosePage() {
   const [pettyInput, setPettyInput] = useState('');
   const [declaredInput, setDeclaredInput] = useState('');
   const [notes, setNotes] = useState('0');
+  const [openNotes, setOpenNotes] = useState('0');
   const [declaredByMethod, setDeclaredByMethod] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [lastClosed, setLastClosed] = useState<CashSessionClosedResult | null>(null);
@@ -80,6 +81,7 @@ export function CashClosePage() {
     try {
       const petty = data.cashPettyCashEnabled ? parseFloat(pettyInput.replace(',', '.')) || 0 : 0;
       await openCashSession(data.cashPettyCashEnabled ? petty : null);
+      setNotes(openNotes.trim() || '0');
       await refresh();
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'No se pudo abrir caja.');
@@ -117,7 +119,7 @@ export function CashClosePage() {
     return (
       <div className="pro-card" style={{ maxWidth: 640 }}>
         <p className="pro-muted" style={{ margin: 0 }}>
-          Cargando turno y politica
+          Cargando estado de caja
         </p>
         <div className="pro-shimmer" style={{ height: 8, marginTop: 12, maxWidth: 200 }} />
       </div>
@@ -162,7 +164,7 @@ export function CashClosePage() {
           <CrossModuleLinks
             marginTop={8}
             items={[
-              { to: '/admin/empresa-caja', label: 'Política de caja', show: canEmpresaConfig },
+              { to: '/admin/empresa-caja', label: 'Configuracion de caja', show: canEmpresaConfig },
               { to: '/admin/formas-pago', label: 'Formas de pago', show: canEmpresaConfig },
             ]}
           />
@@ -226,7 +228,7 @@ export function CashClosePage() {
             </li>
             <li>
               Ordenes con cobro en caja fisica: <strong>{data.open.efectivoOrderCount}</strong> (de{' '}
-              {data.open.orderCount} con pago en el turno)
+              {data.open.orderCount} con pago en caja abierta)
             </li>
             <li>
               Suma linea EFECTIVO (etiqueta): L <strong>{money(data.open.sumEfectivo)}</strong> · Suma con bandera
@@ -321,6 +323,9 @@ export function CashClosePage() {
       {!data.hasOpenSession && data.canOpen ? (
         <div className="pro-card" style={{ maxWidth: 700, marginBottom: 12 }} aria-label="Abrir caja">
           <h2 style={{ margin: '0 0 8px', fontSize: 17 }}>Abrir caja</h2>
+          <p className="pro-muted" style={{ margin: '0 0 8px', fontSize: 14 }}>
+            Turno: <strong>0</strong> (fijo para operacion diaria).
+          </p>
           {data.cashPettyCashEnabled ? (
             <>
               <p className="pro-muted" style={{ margin: '0 0 6px', fontSize: 14 }}>
@@ -344,12 +349,40 @@ export function CashClosePage() {
                   {busy ? 'Abriendo...' : 'Abrir caja'}
                 </button>
               </div>
+              <label style={{ display: 'block', fontWeight: 700, margin: '10px 0 6px' }} htmlFor="openObs">
+                Observacion
+              </label>
+              <input
+                id="openObs"
+                className="pro-input"
+                value={openNotes}
+                onChange={(ev) => setOpenNotes(ev.target.value)}
+                maxLength={500}
+                style={{ maxWidth: '100%', marginBottom: 12 }}
+                disabled={busy}
+              />
             </>
           ) : (
             <p className="pro-muted" style={{ fontSize: 14 }}>
               Caja chica deshabilitada en la politica: se abre con 0.
             </p>
           )}
+          {!data.cashPettyCashEnabled ? (
+            <>
+              <label style={{ display: 'block', fontWeight: 700, margin: '10px 0 6px' }} htmlFor="openObsNoPetty">
+                Observacion
+              </label>
+              <input
+                id="openObsNoPetty"
+                className="pro-input"
+                value={openNotes}
+                onChange={(ev) => setOpenNotes(ev.target.value)}
+                maxLength={500}
+                style={{ maxWidth: '100%', marginBottom: 12 }}
+                disabled={busy}
+              />
+            </>
+          ) : null}
           {!data.cashPettyCashEnabled ? (
             <button className="pro-button" type="button" onClick={() => void onOpen()} disabled={busy}>
               {busy ? 'Abriendo...' : 'Abrir caja'}

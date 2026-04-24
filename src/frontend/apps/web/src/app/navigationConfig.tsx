@@ -167,11 +167,11 @@ export const appNavGroups: AppNavGroup[] = [
   {
     id: 'laboratorio',
     label: 'Trabajo de laboratorio',
-    intro: 'Muestras, resultados, caja del turno y metas del lab.',
+    intro: 'Muestras, resultados, caja y metas del laboratorio.',
     items: [
       { to: '/lab/muestras', label: 'Muestras y etiquetas', need: 'MUESTRA.GESTION', icon: 'sample', hint: 'Etiquetar y registrar tomas' },
       { to: '/lab/resultados', label: 'Cargar resultados', need: 'RESULTADOS.VALIDAR', icon: 'results', hint: 'Escribir y aprobar valores' },
-      { to: '/caja/cierre', label: 'Cerrar caja', need: 'CAJA.CERRAR', icon: 'till', hint: 'Arqueo y efectivo del turno' },
+      { to: '/caja/cierre', label: 'Caja', need: 'CAJA.CERRAR', icon: 'till', hint: 'Apertura, arqueo y cierre' },
       { to: '/lab/reportes', label: 'Indicadores (LIS)', need: 'RESULTADOS.VALIDAR', icon: 'kpi', hint: 'A vista de gestion' },
       { to: '/finanzas/estado', label: 'Estado financiero', anyOf: ['CAJA.CERRAR', 'RESULTADOS.VALIDAR', 'ORDEN.READ'], icon: 'kpi', hint: 'Ingresos, pagos y cuadre' },
       { to: '/operacion/sincronizacion', label: 'Sincronizacion offline', anyOf: ['CAJA.CERRAR', 'ORDEN.CREATE', 'ORDEN.READ'], icon: 'kpi', hint: 'Pendientes y regularizacion' },

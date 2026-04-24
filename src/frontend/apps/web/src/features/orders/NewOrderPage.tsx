@@ -311,7 +311,7 @@ export function NewOrderPage() {
           { to: '/patients', label: 'Pacientes', show: hasPermission('PACIENTE.READ') },
           { to: '/lab-exams', label: 'Catalogo de examenes', show: hasPermission('EXAMEN.READ') },
           { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
-          { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+          { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
           { to: '/lab/resultados', label: 'Resultados', show: hasPermission('RESULTADOS.VALIDAR') },
           { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
           { to: '/sar', label: 'Cumplimiento SAR', show: hasPermission('FISCAL.READ') },

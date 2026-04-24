@@ -102,7 +102,7 @@ export function SamplesPage() {
             items={[
               { to: '/lab/resultados', label: 'Resultados', show: hasPermission('RESULTADOS.VALIDAR') },
               { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
-              { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+              { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
               { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
               { to: '/orders', label: 'Nueva orden', show: hasPermission('ORDEN.CREATE') },
             ]}

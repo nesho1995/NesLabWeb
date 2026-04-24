@@ -125,7 +125,7 @@ export function OrdersListPage() {
           { to: '/lab/muestras', label: 'Muestras', show: hasPermission('MUESTRA.GESTION') },
           { to: '/lab/resultados', label: 'Resultados', show: hasPermission('RESULTADOS.VALIDAR') },
           { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
-          { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+          { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
           { to: '/sar', label: 'Cumplimiento SAR', show: hasPermission('FISCAL.READ') },
           { to: '/admin/empresa-caja', label: 'Política de caja', show: hasPermission('EMPRESA.CONFIG') },
           { to: '/admin/formas-pago', label: 'Formas de pago', show: hasPermission('EMPRESA.CONFIG') },

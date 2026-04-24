@@ -44,6 +44,8 @@ export function LabReportesPage() {
   });
   const [toDate, setToDate] = useState(today);
   const [finance, setFinance] = useState<FinanceSummary | null>(null);
+  const [showEmptyDays, setShowEmptyDays] = useState(false);
+  const [methodFilter, setMethodFilter] = useState('ALL');
 
   const fetchDash = useCallback(async () => {
     const r = await getLabDashboard();
@@ -90,6 +92,26 @@ export function LabReportesPage() {
       c = false;
     };
   }, [fromDate, toDate]);
+
+  const visibleDailyRows = useMemo(() => {
+    if (!finance) return [];
+    if (showEmptyDays) return finance.dailyRows;
+    return finance.dailyRows.filter((d) =>
+      d.ordersCount > 0 ||
+      d.entradas !== 0 ||
+      d.salidas !== 0 ||
+      d.neto !== 0 ||
+      d.cashExpected !== 0 ||
+      d.cashDeclared !== 0 ||
+      d.cashDifference !== 0
+    );
+  }, [finance, showEmptyDays]);
+
+  const visibleByMethod = useMemo(() => {
+    if (!finance) return [];
+    if (methodFilter === 'ALL') return finance.byMethod;
+    return finance.byMethod.filter((m) => m.method === methodFilter);
+  }, [finance, methodFilter]);
 
   if (load) {
     return (
@@ -180,7 +202,7 @@ export function LabReportesPage() {
           items={[
             { to: '/lab/resultados', label: 'Resultados', show: hasPermission('RESULTADOS.VALIDAR') },
             { to: '/lab/muestras', label: 'Muestras', show: hasPermission('MUESTRA.GESTION') },
-            { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+            { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
             { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
             { to: '/orders', label: 'Nueva orden', show: hasPermission('ORDEN.CREATE') },
           ]}
@@ -198,14 +220,14 @@ export function LabReportesPage() {
         <h2 className="pro-h3" style={{ margin: '0 0 4px' }}>Caja</h2>
         {d.cashSessionOpen ? (
           <p className="pro-muted" style={{ margin: 0 }}>
-            Turno de caja <strong>abierto</strong>
+            Caja <strong>abierta</strong>
             {d.cashSessionOpenedAtUtc ? (
               <span> desde {new Date(d.cashSessionOpenedAtUtc).toLocaleString('es-HN')}</span>
             ) : null}
-            . Cierre y arqueo en Cierre de caja.
+            . Gestionar arqueo en Caja.
           </p>
         ) : (
-          <p className="pro-muted" style={{ margin: 0 }}>No hay turno de caja abierto.</p>
+          <p className="pro-muted" style={{ margin: 0 }}>No hay caja abierta.</p>
         )}
       </div>
       <div className="pro-card" style={{ maxWidth: 980, marginTop: 14 }} aria-label="Estado financiero">
@@ -219,6 +241,21 @@ export function LabReportesPage() {
             Hasta{' '}
             <input className="pro-input" type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </label>
+          <label className="pro-muted" style={{ fontSize: 13 }}>
+            Metodo{' '}
+            <select className="pro-input" value={methodFilter} onChange={(e) => setMethodFilter(e.target.value)}>
+              <option value="ALL">Todos</option>
+              {(finance?.byMethod ?? []).map((m) => (
+                <option key={m.method} value={m.method}>
+                  {m.method}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="pro-inline pro-muted" style={{ fontSize: 13 }}>
+            <input type="checkbox" checked={showEmptyDays} onChange={(e) => setShowEmptyDays(e.target.checked)} />
+            Mostrar dias sin movimiento
+          </label>
         </div>
         {finance ? (
           <>
@@ -231,7 +268,7 @@ export function LabReportesPage() {
               <strong>{moneyHnl(finance.cashDeclaredTotal)}</strong> · Diferencia cierre:{' '}
               <strong>{moneyHnl(finance.cashDifferenceTotal)}</strong>
             </p>
-            {finance.byMethod.length > 0 ? (
+            {visibleByMethod.length > 0 ? (
               <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
@@ -241,7 +278,7 @@ export function LabReportesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {finance.byMethod.map((m) => (
+                  {visibleByMethod.map((m) => (
                     <tr key={m.method}>
                       <td style={{ padding: 4 }}>{m.method}</td>
                       <td style={{ padding: 4, textAlign: 'right' }}>{moneyHnl(m.amount)}</td>
@@ -251,8 +288,45 @@ export function LabReportesPage() {
                 </tbody>
               </table>
             ) : (
-              <p className="pro-muted" style={{ margin: 0 }}>Sin pagos en el rango seleccionado.</p>
+              <p className="pro-muted" style={{ margin: 0 }}>Sin pagos para el filtro seleccionado.</p>
             )}
+            <div style={{ marginTop: 12 }}>
+              <h3 className="pro-h3" style={{ margin: '0 0 8px' }}>Estado de cuenta diario</h3>
+              {visibleDailyRows.length === 0 ? (
+                <p className="pro-muted" style={{ margin: 0 }}>Sin movimientos diarios para este filtro.</p>
+              ) : (
+                <div className="pro-tablewrap">
+                  <table className="pro-table" style={{ minWidth: 760 }}>
+                    <thead>
+                      <tr>
+                        <th>Fecha (HN)</th>
+                        <th style={{ textAlign: 'right' }}>Ordenes</th>
+                        <th style={{ textAlign: 'right' }}>Entradas</th>
+                        <th style={{ textAlign: 'right' }}>Salidas</th>
+                        <th style={{ textAlign: 'right' }}>Neto</th>
+                        <th style={{ textAlign: 'right' }}>Caja esperada</th>
+                        <th style={{ textAlign: 'right' }}>Caja declarada</th>
+                        <th style={{ textAlign: 'right' }}>Dif. caja</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleDailyRows.map((d) => (
+                        <tr key={d.dateHn}>
+                          <td>{d.dateHn}</td>
+                          <td style={{ textAlign: 'right' }}>{d.ordersCount}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.entradas)}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.salidas)}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.neto)}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.cashExpected)}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.cashDeclared)}</td>
+                          <td style={{ textAlign: 'right' }}>{moneyHnl(d.cashDifference)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <p className="pro-muted" style={{ margin: 0 }}>No se pudo calcular resumen financiero para ese rango.</p>

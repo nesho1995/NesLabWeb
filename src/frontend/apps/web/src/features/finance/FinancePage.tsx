@@ -12,16 +12,13 @@ function moneyHnl(n: number) {
 export function FinancePage() {
   const { hasPermission, hasAnyPermission } = useAuth();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
-  const [fromDate, setFromDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 29);
-    return d.toISOString().slice(0, 10);
-  });
+  const [fromDate, setFromDate] = useState(today);
   const [toDate, setToDate] = useState(today);
   const [data, setData] = useState<FinanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [showEmptyDays, setShowEmptyDays] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -47,6 +44,20 @@ export function FinancePage() {
       mounted = false;
     };
   }, [fromDate, toDate]);
+
+  const visibleDailyRows = useMemo(() => {
+    if (!data) return [];
+    if (showEmptyDays) return data.dailyRows;
+    return data.dailyRows.filter((d) =>
+      d.ordersCount > 0 ||
+      d.entradas !== 0 ||
+      d.salidas !== 0 ||
+      d.neto !== 0 ||
+      d.cashExpected !== 0 ||
+      d.cashDeclared !== 0 ||
+      d.cashDifference !== 0
+    );
+  }, [data, showEmptyDays]);
 
   return (
     <div className="pro-page">
@@ -123,6 +134,10 @@ export function FinancePage() {
           <label className="pro-muted" style={{ fontSize: 13 }}>
             Hasta{' '}
             <input className="pro-input" type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+          </label>
+          <label className="pro-inline pro-muted" style={{ fontSize: 13 }}>
+            <input type="checkbox" checked={showEmptyDays} onChange={(e) => setShowEmptyDays(e.target.checked)} />
+            Mostrar dias sin movimiento
           </label>
         </div>
       </div>
@@ -203,7 +218,7 @@ export function FinancePage() {
           </div>
           <div className="pro-card" style={{ maxWidth: 980, marginTop: 12 }}>
             <h2 className="pro-h3" style={{ margin: '0 0 8px' }}>Estado de cuenta diario (caja/gerencia)</h2>
-            {data.dailyRows.length === 0 ? (
+            {visibleDailyRows.length === 0 ? (
               <p className="pro-muted" style={{ margin: 0 }}>Sin movimientos diarios en el rango.</p>
             ) : (
               <div className="pro-tablewrap">
@@ -221,7 +236,7 @@ export function FinancePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.dailyRows.map((d) => (
+                    {visibleDailyRows.map((d) => (
                       <tr key={d.dateHn}>
                         <td>{d.dateHn}</td>
                         <td style={{ textAlign: 'right' }}>{d.ordersCount}</td>
@@ -246,7 +261,7 @@ export function FinancePage() {
           heading="Relacionados"
           marginTop={0}
           items={[
-            { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+            { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
             { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
             { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
             { to: '/orders', label: 'Nueva orden', show: hasPermission('ORDEN.CREATE') },

@@ -142,7 +142,7 @@ export function OrderVoucherPage() {
   const canCreateOrder = hasPermission('ORDEN.CREATE');
   const followUpItems = [
     { to: '/ordenes' as const, label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
-    { to: '/caja/cierre' as const, label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+    { to: '/caja/cierre' as const, label: 'Caja', show: hasPermission('CAJA.CERRAR') },
     { to: '/lab/resultados' as const, label: 'Resultados', show: hasPermission('RESULTADOS.VALIDAR') },
     { to: '/lab/muestras' as const, label: 'Muestras', show: hasPermission('MUESTRA.GESTION') },
     { to: '/lab/reportes' as const, label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },

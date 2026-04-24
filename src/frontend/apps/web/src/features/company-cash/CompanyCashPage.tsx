@@ -4,16 +4,6 @@ import { useAuth } from '../auth/AuthProvider';
 import { CrossModuleLinks } from '../../shared/components/CrossModuleLinks';
 import { getCompanyCashSettings, putCompanyCashSettings } from './companyCash.api';
 
-function clampInt(n: number, min: number, max: number) {
-  if (Number.isNaN(n) || n < min) {
-    return min;
-  }
-  if (n > max) {
-    return max;
-  }
-  return Math.trunc(n);
-}
-
 export function CompanyCashPage() {
   const { hasPermission, hasAnyPermission } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -22,7 +12,6 @@ export function CompanyCashPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<number | null>(null);
-  const [cashShiftsPerDay, setCashShiftsPerDay] = useState(1);
   const [cashPettyCashEnabled, setCashPettyCashEnabled] = useState(true);
   const [cashPettyCashDefault, setCashPettyCashDefault] = useState(0);
 
@@ -38,7 +27,6 @@ export function CompanyCashPage() {
           return;
         }
         setCompanyId(d.companyId);
-        setCashShiftsPerDay(d.cashShiftsPerDay);
         setCashPettyCashEnabled(d.cashPettyCashEnabled);
         setCashPettyCashDefault(Number(d.cashPettyCashDefault));
       } catch (e) {
@@ -84,15 +72,13 @@ export function CompanyCashPage() {
     setSaveError(null);
     setSaving(true);
     try {
-      const shifts = clampInt(cashShiftsPerDay, 1, 8);
       const monto = Math.max(0, Number(cashPettyCashDefault) || 0);
       const d = await putCompanyCashSettings({
-        cashShiftsPerDay: shifts,
+        cashShiftsPerDay: 1,
         cashPettyCashEnabled,
         cashPettyCashDefault: monto,
       });
       setCompanyId(d.companyId);
-      setCashShiftsPerDay(d.cashShiftsPerDay);
       setCashPettyCashEnabled(d.cashPettyCashEnabled);
       setCashPettyCashDefault(Number(d.cashPettyCashDefault));
       setSaved('Cambios guardados correctamente.');
@@ -109,8 +95,8 @@ export function CompanyCashPage() {
         <div>
           <h1 className="pro-hero__title">Politica de caja (por empresa)</h1>
           <p className="pro-hero__desc" style={{ marginBottom: 0 }}>
-            Aplica a la <strong>empresa de la sesion actual</strong>. Incluye cuantos turnos de
-            apertura/cierre se permiten por dia y el uso de caja chica para vuelto.
+            Aplica a la <strong>empresa de la sesion actual</strong>. Incluye configuracion de caja chica
+            para apoyar apertura y cierre diario.
           </p>
           <p className="pro-muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
             <Link to="/admin/formas-pago" className="pro-content-link">
@@ -121,7 +107,7 @@ export function CompanyCashPage() {
           <CrossModuleLinks
             marginTop={8}
             items={[
-              { to: '/caja/cierre', label: 'Cierre de caja', show: hasPermission('CAJA.CERRAR') },
+              { to: '/caja/cierre', label: 'Caja', show: hasPermission('CAJA.CERRAR') },
               { to: '/lab/reportes', label: 'Indicadores LIS', show: hasPermission('RESULTADOS.VALIDAR') },
               { to: '/ordenes', label: 'Bandeja de ordenes', show: hasAnyPermission(['ORDEN.READ', 'ORDEN.CREATE']) },
               { to: '/admin/users', label: 'Usuarios', show: hasPermission('USUARIO.READ') },
@@ -157,39 +143,12 @@ export function CompanyCashPage() {
         </div>
       ) : null}
 
-      <form
-        onSubmit={onSave}
-        className="pro-card"
-        style={{ maxWidth: 640 }}
-        aria-label="Parametros de caja y caja chica"
-      >
+      <form onSubmit={onSave} className="pro-card" style={{ maxWidth: 640 }} aria-label="Parametros de caja chica">
         {companyId !== null ? (
           <p className="pro-muted" style={{ margin: '0 0 16px', fontSize: 13 }}>
             Empresa (sesion) ID <code style={{ fontFamily: 'var(--pro-font-mono)' }}>{companyId}</code>
           </p>
         ) : null}
-
-        <label
-          style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}
-          htmlFor="shifts"
-        >
-          Turnos de caja por dia
-        </label>
-        <p className="pro-muted" style={{ margin: '0 0 6px', fontSize: 13 }}>
-          1 = un cierre/turno por calendario; sube a 2–8 si en el futuro aplicas varias aperturas
-          (por ejemplo manana y tarde).
-        </p>
-        <input
-          id="shifts"
-          className="pro-input"
-          type="number"
-          min={1}
-          max={8}
-          step={1}
-          value={cashShiftsPerDay}
-          onChange={(ev) => setCashShiftsPerDay(Number(ev.target.value))}
-          style={{ maxWidth: 120, marginBottom: 16 }}
-        />
 
         <div className="pro-cb" style={{ marginBottom: 12 }}>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
@@ -229,7 +188,7 @@ export function CompanyCashPage() {
         />
 
         <p className="pro-muted" style={{ margin: '0 0 12px', fontSize: 12 }}>
-          Rango de turnos valido en el servidor: 1 a 8. Monto caja chica mayor o igual a cero.
+          Monto caja chica mayor o igual a cero.
         </p>
 
         <div className="pro-actions-row" style={{ marginTop: 8 }}>
