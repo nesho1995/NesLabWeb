@@ -93,4 +93,6 @@ public sealed record OrderListQuery(
     string? Search,
     string? FiscalStatus,
     int Page = 1,
-    int PageSize = 20);
+    int PageSize = 20,
+    DateOnly? FromDate = null,
+    DateOnly? ToDate = null);

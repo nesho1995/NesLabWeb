@@ -6,6 +6,8 @@ import { fetchOrdersPage } from './ordersList.api';
 import type { OrderListItem } from './ordersList.types';
 import { getPendingOrdersCount, subscribeOrderOutboxUpdated } from '../../shared/offline/orderOutbox';
 
+const tzHn = 'America/Tegucigalpa';
+
 function moneyHn(n: number) {
   return n.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' });
 }
@@ -13,11 +15,13 @@ function moneyHn(n: number) {
 function whenLocal(iso: string) {
   try {
     return new Date(iso).toLocaleString('es-HN', {
+      timeZone: tzHn,
       day: '2-digit',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hour12: true,
     });
   } catch {
     return iso;
@@ -53,6 +57,8 @@ export function OrdersListPage() {
   const [total, setTotal] = useState(0);
   const [pageSize] = useState(20);
   const [fiscalFilter, setFiscalFilter] = useState<'ALL' | 'REGULARIZADA' | 'PENDIENTE'>('ALL');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -60,7 +66,7 @@ export function OrdersListPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, fiscalFilter]);
+  }, [search, fiscalFilter, fromDate, toDate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,7 +74,7 @@ export function OrdersListPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetchOrdersPage(search, page, pageSize, fiscalFilter);
+        const res = await fetchOrdersPage(search, page, pageSize, fiscalFilter, fromDate, toDate);
         if (!cancelled) {
           setRows(res.items);
           setTotal(res.totalCount);
@@ -86,7 +92,7 @@ export function OrdersListPage() {
     return () => {
       cancelled = true;
     };
-  }, [search, page, pageSize, fiscalFilter, tick]);
+  }, [search, page, pageSize, fiscalFilter, fromDate, toDate, tick]);
 
   useEffect(() => {
     const refresh = () => setPendingSyncCount(getPendingOrdersCount());
@@ -172,6 +178,30 @@ export function OrdersListPage() {
             <option value="PENDIENTE">Pendiente</option>
           </select>
         </label>
+        <div className="pro-stack--md" style={{ marginTop: 10, display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          <label className="pro-field" style={{ marginBottom: 0 }}>
+            <span style={{ display: 'block', marginBottom: 6, fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+              Fecha desde
+            </span>
+            <input
+              type="date"
+              className="pro-input"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </label>
+          <label className="pro-field" style={{ marginBottom: 0 }}>
+            <span style={{ display: 'block', marginBottom: 6, fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+              Fecha hasta
+            </span>
+            <input
+              type="date"
+              className="pro-input"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </label>
+        </div>
 
         <p className="pro-muted" style={{ marginTop: 12 }}>
           {fiscalFilter === 'ALL'

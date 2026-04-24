@@ -17,6 +17,7 @@ namespace NesLab.Infrastructure.Services;
 public sealed class OrderService : IOrderService
 {
     private const decimal DefaultIsv = 0.15m;
+    private static readonly TimeZoneInfo HondurasTimeZone = ResolveHondurasTimeZone();
     private readonly IConfiguration _configuration;
     private readonly ICurrentUserContext _current;
     private readonly ITenantContext _tenant;
@@ -54,6 +55,12 @@ public sealed class OrderService : IOrderService
         var size = Math.Clamp(query.PageSize, 1, 100);
         var search = query.Search?.Trim().ToLowerInvariant();
         var fiscal = query.FiscalStatus?.Trim().ToUpperInvariant();
+        var fromUtc = query.FromDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.FromDate.Value);
+        var toUtcExclusive = query.ToDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.ToDate.Value.AddDays(1));
 
         IQueryable<LabOrder> q = _db.Orders.AsNoTracking().Where(o => o.CompanyId == companyId);
 
@@ -79,6 +86,16 @@ public sealed class OrderService : IOrderService
                     !o.CaiMode &&
                     !_db.OfflineSyncRegularizations.Any(r => r.CompanyId == companyId && r.OrderId == o.Id));
             }
+        }
+
+        if (fromUtc is not null)
+        {
+            q = q.Where(o => o.OrderAtUtc >= fromUtc.Value);
+        }
+
+        if (toUtcExclusive is not null)
+        {
+            q = q.Where(o => o.OrderAtUtc < toUtcExclusive.Value);
         }
 
         var total = await q.CountAsync(cancellationToken);
@@ -464,4 +481,30 @@ public sealed class OrderService : IOrderService
             o.Total,
             paymentOverride ?? string.Empty,
             changeOverride);
+
+    private static DateTime ToUtcStartOfDay(DateOnly date)
+    {
+        var local = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(local, HondurasTimeZone);
+    }
+
+    private static TimeZoneInfo ResolveHondurasTimeZone()
+    {
+        var ids = new[] { "America/Tegucigalpa", "Central America Standard Time" };
+        foreach (var id in ids)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+            catch (InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return TimeZoneInfo.Utc;
+    }
 }

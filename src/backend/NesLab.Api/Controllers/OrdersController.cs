@@ -23,12 +23,14 @@ public sealed class OrdersController(IOrderService orders) : ControllerBase
     public async Task<ActionResult<PagedResult<OrderListItemDto>>> GetList(
         [FromQuery] string? search,
         [FromQuery] string? fiscalStatus,
+        [FromQuery] DateOnly? fromDate,
+        [FromQuery] DateOnly? toDate,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         var result = await orders.GetOrdersPagedAsync(
-            new OrderListQuery(search, fiscalStatus, page, pageSize), cancellationToken);
+            new OrderListQuery(search, fiscalStatus, page, pageSize, fromDate, toDate), cancellationToken);
         return Ok(result);
     }
 

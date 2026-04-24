@@ -6,7 +6,9 @@ export function fetchOrdersPage(
   search: string,
   page: number,
   pageSize = 20,
-  fiscalStatus: 'ALL' | 'REGULARIZADA' | 'PENDIENTE' = 'ALL'
+  fiscalStatus: 'ALL' | 'REGULARIZADA' | 'PENDIENTE' = 'ALL',
+  fromDate = '',
+  toDate = ''
 ): Promise<PagedResult<OrderListItem>> {
   const sp = new URLSearchParams();
   if (search) {
@@ -14,6 +16,12 @@ export function fetchOrdersPage(
   }
   if (fiscalStatus !== 'ALL') {
     sp.set('fiscalStatus', fiscalStatus);
+  }
+  if (fromDate) {
+    sp.set('fromDate', fromDate);
+  }
+  if (toDate) {
+    sp.set('toDate', toDate);
   }
   sp.set('page', String(page));
   sp.set('pageSize', String(pageSize));
