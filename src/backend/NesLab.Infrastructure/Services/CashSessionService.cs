@@ -5,6 +5,7 @@ using NesLab.Application.Interfaces;
 using NesLab.Domain.Entities;
 using NesLab.Domain.Rules;
 using NesLab.Infrastructure.Persistence;
+using System.Data;
 
 namespace NesLab.Infrastructure.Services;
 
@@ -81,16 +82,12 @@ public sealed class CashSessionService : ICashSessionService
     {
         var userId = _current.UserId ?? throw new InvalidOperationException("No hay usuario en contexto para abrir caja.");
         var companyId = _tenant.CompanyId;
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         var company = await _db.Companies.FirstAsync(x => x.Id == companyId, cancellationToken);
         if (await _db.CashSessions.AnyAsync(s => s.CompanyId == companyId && s.ClosedAtUtc == null, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe un turno de caja abierto.");
+            throw new InvalidOperationException("Ya existe una caja abierta.");
         }
-        var (startUtc, endUtc) = HondurasDayBoundsUtc();
-        _ = endUtc;
-        var opensToday = await _db.CashSessions.CountAsync(
-            s => s.CompanyId == companyId && s.OpenedAtUtc >= startUtc && s.OpenedAtUtc < endUtc,
-            cancellationToken);
         var petty = ResolvePetty(request, company);
         var row = new CashSession
         {
@@ -101,6 +98,7 @@ public sealed class CashSessionService : ICashSessionService
         };
         _db.CashSessions.Add(row);
         await _db.SaveChangesAsync(cancellationToken);
+        await tx.CommitAsync(cancellationToken);
         return new CashSessionOpenedResultDto(row.Id, row.OpenedAtUtc, row.PettyCashOpening);
     }
 

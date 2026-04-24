@@ -64,6 +64,7 @@ public sealed class AuthService(
             .ToList();
 
         var (token, expiresAtUtc) = tokenGenerator.Generate(user, roles, permissions);
+        await RevokeActiveRefreshTokensAsync(user.Id, cancellationToken);
         var refreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
         return new AuthResponse(
@@ -175,6 +176,24 @@ public sealed class AuthService(
         });
         await dbContext.SaveChangesAsync(cancellationToken);
         return tokenValue;
+    }
+
+    private async Task RevokeActiveRefreshTokensAsync(int userId, CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var activeTokens = await dbContext.RefreshTokens
+            .Where(x => x.UserId == userId && x.RevokedAtUtc == null)
+            .ToListAsync(cancellationToken);
+        if (activeTokens.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var token in activeTokens)
+        {
+            token.RevokedAtUtc = now;
+        }
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private static string ComputeSha256(string value)
