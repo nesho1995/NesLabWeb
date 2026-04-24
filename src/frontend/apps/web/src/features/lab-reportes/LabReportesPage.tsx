@@ -129,13 +129,13 @@ export function LabReportesPage() {
         <div style={{ flex: 1 }}>
           <h1 className="pro-hero__title" style={{ fontSize: 24 }}>Indicadores (empresa activa)</h1>
           <p className="pro-hero__desc" style={{ margin: 0 }}>
-            Cifras viven en el mismo inquilino (empresa) de sesion. &quot;Hoy&quot; usa calendario Honduras
-            (Tegucigalpa); siete dias anteriores en <strong>UTC</strong> para alinear con reloj de servidor.
+            Resumen operativo de la empresa activa. Los datos de hoy se calculan en horario de Honduras
+            (Tegucigalpa) para que coincidan con la jornada del laboratorio.
           </p>
         </div>
         <button
           type="button"
-          className="pro-ghost"
+          className="pro-ghost pro-ghost--noblock"
           onClick={() => {
             setLoad(true);
             void (async () => {

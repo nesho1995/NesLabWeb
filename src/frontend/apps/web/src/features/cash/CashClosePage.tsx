@@ -145,8 +145,8 @@ export function CashClosePage() {
         <div>
           <h1 className="pro-hero__title">Control y cierre de caja</h1>
           <p className="pro-hero__desc" style={{ marginBottom: 0 }}>
-            Apertura y cierre con arqueo: <strong>efectivo en caja</strong> segun comprobantes con
-            pago en metodos de caja fisica mas caja chica.
+            Apertura y cierre con arqueo de <strong>efectivo en caja</strong> segun comprobantes en metodos de
+            caja fisica mas caja chica.
           </p>
           <CrossModuleLinks
             marginTop={10}
@@ -312,8 +312,8 @@ export function CashClosePage() {
             style={{ maxWidth: '100%', marginBottom: 12 }}
             disabled={busy}
           />
-          <button className="pro-btn" type="button" onClick={() => void onClose()} disabled={busy}>
-            {busy ? 'Cerrando…' : 'Registrar cierre y arqueo'}
+          <button className="pro-button" type="button" onClick={() => void onClose()} disabled={busy}>
+            {busy ? 'Cerrando...' : 'Registrar cierre y arqueo'}
           </button>
         </div>
       ) : null}
@@ -329,25 +329,32 @@ export function CashClosePage() {
               <label style={{ display: 'block', fontWeight: 700, marginBottom: 6 }} htmlFor="petty">
                 Caja chica (L)
               </label>
-              <input
-                id="petty"
-                className="pro-input"
-                type="text"
-                inputMode="decimal"
-                value={pettyInput}
-                onChange={(ev) => setPettyInput(ev.target.value)}
-                style={{ maxWidth: 200, marginBottom: 12 }}
-                disabled={busy}
-              />
+              <div className="pro-actions-row" style={{ marginBottom: 0 }}>
+                <input
+                  id="petty"
+                  className="pro-input"
+                  type="text"
+                  inputMode="decimal"
+                  value={pettyInput}
+                  onChange={(ev) => setPettyInput(ev.target.value)}
+                  style={{ maxWidth: 280, marginBottom: 0 }}
+                  disabled={busy}
+                />
+                <button className="pro-button" type="button" onClick={() => void onOpen()} disabled={busy}>
+                  {busy ? 'Abriendo...' : 'Abrir caja'}
+                </button>
+              </div>
             </>
           ) : (
             <p className="pro-muted" style={{ fontSize: 14 }}>
               Caja chica deshabilitada en la politica: se abre con 0.
             </p>
           )}
-          <button className="pro-btn" type="button" onClick={() => void onOpen()} disabled={busy}>
-            {busy ? 'Abriendo…' : 'Abrir caja'}
-          </button>
+          {!data.cashPettyCashEnabled ? (
+            <button className="pro-button" type="button" onClick={() => void onOpen()} disabled={busy}>
+              {busy ? 'Abriendo...' : 'Abrir caja'}
+            </button>
+          ) : null}
         </div>
       ) : null}
 
