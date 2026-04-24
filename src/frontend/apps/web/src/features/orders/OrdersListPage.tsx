@@ -8,13 +8,26 @@ import { getPendingOrdersCount, subscribeOrderOutboxUpdated } from '../../shared
 
 const tzHn = 'America/Tegucigalpa';
 
+function parseServerDateAsUtc(value: string): Date {
+  const raw = value.trim();
+  if (!raw) {
+    return new Date(Number.NaN);
+  }
+  const hasExplicitZone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(raw);
+  return new Date(hasExplicitZone ? raw : `${raw}Z`);
+}
+
 function moneyHn(n: number) {
   return n.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' });
 }
 
 function whenLocal(iso: string) {
   try {
-    return new Date(iso).toLocaleString('es-HN', {
+    const parsed = parseServerDateAsUtc(iso);
+    if (Number.isNaN(parsed.getTime())) {
+      return iso;
+    }
+    return parsed.toLocaleString('es-HN', {
       timeZone: tzHn,
       day: '2-digit',
       month: 'short',

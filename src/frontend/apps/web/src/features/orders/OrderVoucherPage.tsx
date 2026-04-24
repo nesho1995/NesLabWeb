@@ -10,8 +10,20 @@ import type { OrderVoucher } from './orderVoucher.types';
 const tzHn = 'America/Tegucigalpa';
 const lemp = new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' });
 
+function parseServerDateAsUtc(value: string): Date {
+  const raw = value.trim();
+  if (!raw) {
+    return new Date(Number.NaN);
+  }
+  const hasExplicitZone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(raw);
+  return new Date(hasExplicitZone ? raw : `${raw}Z`);
+}
+
 function datePartsHn(d: string) {
-  const dt = new Date(d);
+  const dt = parseServerDateAsUtc(d);
+  if (Number.isNaN(dt.getTime())) {
+    return { day: '--', month: '--', year: '----' };
+  }
   return {
     day: dt.toLocaleDateString('es-HN', { timeZone: tzHn, day: '2-digit' }),
     month: dt.toLocaleDateString('es-HN', { timeZone: tzHn, month: '2-digit' }),
@@ -20,10 +32,18 @@ function datePartsHn(d: string) {
 }
 
 function fmtHn(d: string) {
-  return new Date(d).toLocaleString('es-HN', { timeZone: tzHn, day: '2-digit', month: 'short', year: 'numeric' });
+  const dt = parseServerDateAsUtc(d);
+  if (Number.isNaN(dt.getTime())) {
+    return '—';
+  }
+  return dt.toLocaleString('es-HN', { timeZone: tzHn, day: '2-digit', month: 'short', year: 'numeric' });
 }
 function fmtHnLong(d: string) {
-  return new Date(d).toLocaleString('es-HN', {
+  const dt = parseServerDateAsUtc(d);
+  if (Number.isNaN(dt.getTime())) {
+    return '—';
+  }
+  return dt.toLocaleString('es-HN', {
     timeZone: tzHn,
     weekday: 'long',
     day: '2-digit',

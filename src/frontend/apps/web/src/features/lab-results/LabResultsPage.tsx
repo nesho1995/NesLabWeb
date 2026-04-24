@@ -9,11 +9,24 @@ type FormatFilter = 'todos' | 'texto' | 'panel';
 type CompletenessFilter = 'todos' | 'incompletos-panel';
 const tzHn = 'America/Tegucigalpa';
 
+function parseServerDateAsUtc(value: string): Date {
+  const raw = value.trim();
+  if (!raw) {
+    return new Date(Number.NaN);
+  }
+  const hasExplicitZone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(raw);
+  return new Date(hasExplicitZone ? raw : `${raw}Z`);
+}
+
 function dateTimeHn(iso: string | null | undefined) {
   if (!iso) {
     return '—';
   }
-  return new Date(iso).toLocaleString('es-HN', {
+  const parsed = parseServerDateAsUtc(iso);
+  if (Number.isNaN(parsed.getTime())) {
+    return '—';
+  }
+  return parsed.toLocaleString('es-HN', {
     timeZone: tzHn,
     day: '2-digit',
     month: 'short',
