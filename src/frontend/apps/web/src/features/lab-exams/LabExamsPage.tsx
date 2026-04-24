@@ -100,6 +100,7 @@ export function LabExamsPage() {
   const [resultFormat, setResultFormat] = useState<ResultFormat>('texto');
   const [paramRows, setParamRows] = useState<ExamParameterDraft[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const qualityWarnings = buildTemplateQualityWarnings(resultFormat, paramRows);
   useEffect(() => {
     if (editing) {
       setIsActive(editing.isActive);
@@ -373,6 +374,26 @@ export function LabExamsPage() {
                 <p className="pro-hint" style={{ margin: '0 0 0.5rem' }}>
                   El <strong>nombre</strong> es el que se usa al guardar. Unidad y referencia son guia para el laboratorista.
                 </p>
+                {qualityWarnings.length > 0 && (
+                  <div
+                    style={{
+                      border: '1px solid #fcd34d',
+                      background: '#fffbeb',
+                      color: '#92400e',
+                      borderRadius: 8,
+                      padding: '8px 10px',
+                      marginBottom: 8,
+                      fontSize: 12,
+                    }}
+                  >
+                    <strong>Calidad de plantilla:</strong> revisa estos puntos antes de guardar.
+                    <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                      {qualityWarnings.map((w, idx) => (
+                        <li key={`warn-${idx}`}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                   {PARAMETER_TEMPLATES.map((tpl) => (
                     <button
@@ -442,6 +463,13 @@ export function LabExamsPage() {
                         }}
                         placeholder="12-16"
                       />
+                    </div>
+                    <div className="full-width">
+                      {buildRowQualityHint(row) && (
+                        <p className="pro-hint" style={{ margin: '2px 0 0', color: '#92400e' }}>
+                          {buildRowQualityHint(row)}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <button type="button" className="pro-ghost is-small" onClick={() => removeParamRow(i)}>
@@ -561,6 +589,53 @@ export function LabExamsPage() {
         </div>
     </div>
   );
+}
+
+function maybeNumericReference(value: string): boolean {
+  const t = value.trim();
+  if (!t) {
+    return false;
+  }
+  if (/^\s*[<>]=?\s*\d+([.,]\d+)?\s*$/.test(t)) {
+    return true;
+  }
+  return /^\s*-?\d+([.,]\d+)?\s*[-–]\s*-?\d+([.,]\d+)?\s*$/.test(t);
+}
+
+function buildRowQualityHint(row: ExamParameterDraft): string | null {
+  const name = row.name.trim();
+  const unit = row.unit.trim();
+  const ref = row.referenceText.trim();
+  if (!name) {
+    return 'Define nombre del parámetro para trazabilidad clínica.';
+  }
+  if (!ref) {
+    return 'Sin referencia: la IA no podrá clasificar bajo/normal/alto.';
+  }
+  if (!unit && maybeNumericReference(ref)) {
+    return 'Referencia numérica sin unidad: se recomienda definir unidad.';
+  }
+  return null;
+}
+
+function buildTemplateQualityWarnings(format: ResultFormat, rows: ExamParameterDraft[]): string[] {
+  if (format !== 'panel') {
+    return [];
+  }
+  const warnings: string[] = [];
+  if (rows.length === 0) {
+    warnings.push('El panel no tiene parámetros activos.');
+    return warnings;
+  }
+  const noReference = rows.filter((r) => r.name.trim() && !r.referenceText.trim()).length;
+  const numericNoUnit = rows.filter((r) => maybeNumericReference(r.referenceText) && !r.unit.trim()).length;
+  if (noReference > 0) {
+    warnings.push(`${noReference} parámetro(s) sin referencia clínica.`);
+  }
+  if (numericNoUnit > 0) {
+    warnings.push(`${numericNoUnit} parámetro(s) numéricos sin unidad.`);
+  }
+  return warnings;
 }
 
 function parseDecimal(value: string): number | null {

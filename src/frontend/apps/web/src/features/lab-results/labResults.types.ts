@@ -39,4 +39,12 @@ export type AiConclusionSuggestion = {
   disclaimer: string;
   confidenceLevel: string;
   references: AiConclusionReference[];
+  parameterEvaluations: Array<{
+    name: string;
+    status: string;
+    value: string | null;
+    unit: string | null;
+    referenceText: string | null;
+    notes: string | null;
+  }>;
 };

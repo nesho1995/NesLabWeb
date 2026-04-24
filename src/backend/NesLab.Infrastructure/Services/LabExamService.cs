@@ -697,7 +697,6 @@ public sealed class LabExamService(
         string? unit,
         string? reference) =>
     [
-        (analyte, 1, unit, reference),
-        ("Interpretación", 2, null, null)
+        (analyte, 1, unit, reference)
     ];
 }

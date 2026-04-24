@@ -135,7 +135,6 @@ public sealed class UserCommandService(
             x.Username,
             x.FullName,
             x.IsActive,
-            x.UserRoles.Select(ur => ur.RoleId).Distinct().Order().ToList(),
             x.UserRoles.Select(ur => ur.Role.Code).Distinct().Order().ToList());
     }
 }

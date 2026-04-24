@@ -46,6 +46,7 @@ class SuggestConclusionResponse(BaseModel):
     disclaimer: str
     confidenceLevel: str
     references: list[ConclusionReference]
+    parameterEvaluations: list[dict[str, str | None]]
 
 
 SERVICE_TOKEN = os.getenv("AI_SERVICE_TOKEN", "dev-local-ai-token").strip()
@@ -99,42 +100,86 @@ def _safe_float(value: str | None) -> float | None:
         return None
 
 
-def _parameter_interpretation(parameters: list[ConclusionParameterInput]) -> tuple[str, str]:
+def _parameter_interpretation(parameters: list[ConclusionParameterInput]) -> tuple[str, str, list[dict[str, str | None]]]:
     findings: list[str] = []
     altered_count = 0
     measured_count = 0
+    evaluations: list[dict[str, str | None]] = []
 
     for parameter in parameters:
         numeric_value = _safe_float(parameter.value)
         normal_range = _extract_range(parameter.referenceText)
         if numeric_value is None or normal_range is None:
+            evaluations.append(
+                {
+                    "name": parameter.name,
+                    "status": "sin_rango",
+                    "value": parameter.value,
+                    "unit": parameter.unit,
+                    "referenceText": parameter.referenceText,
+                    "notes": "Sin evaluación automática por rango no interpretable.",
+                }
+            )
             continue
         measured_count += 1
         lower, upper = normal_range
         if numeric_value < lower:
             altered_count += 1
             findings.append(f"{parameter.name}: bajo ({numeric_value:g} {parameter.unit or ''})".strip())
+            evaluations.append(
+                {
+                    "name": parameter.name,
+                    "status": "bajo",
+                    "value": str(parameter.value or ""),
+                    "unit": parameter.unit,
+                    "referenceText": parameter.referenceText,
+                    "notes": f"Valor inferior al rango de referencia ({lower:g}-{upper:g}).",
+                }
+            )
         elif numeric_value > upper:
             altered_count += 1
             findings.append(f"{parameter.name}: alto ({numeric_value:g} {parameter.unit or ''})".strip())
+            evaluations.append(
+                {
+                    "name": parameter.name,
+                    "status": "alto",
+                    "value": str(parameter.value or ""),
+                    "unit": parameter.unit,
+                    "referenceText": parameter.referenceText,
+                    "notes": f"Valor superior al rango de referencia ({lower:g}-{upper:g}).",
+                }
+            )
         else:
             findings.append(f"{parameter.name}: dentro de rango")
+            evaluations.append(
+                {
+                    "name": parameter.name,
+                    "status": "normal",
+                    "value": str(parameter.value or ""),
+                    "unit": parameter.unit,
+                    "referenceText": parameter.referenceText,
+                    "notes": "Dentro de rango de referencia.",
+                }
+            )
 
     if measured_count == 0:
         return (
             "No fue posible evaluar desviaciones numéricas contra rangos de referencia en esta muestra.",
             "Interpretación limitada por ausencia de datos numéricos comparables con rangos de referencia.",
+            evaluations,
         )
 
     if altered_count == 0:
         return (
             "Los parámetros cuantificables reportados se mantienen en rangos de referencia.",
             "Perfil analítico sin alteraciones relevantes en los valores disponibles.",
+            evaluations,
         )
 
     return (
         "Se identifican alteraciones en parámetros cuantificables: " + "; ".join(findings[:4]) + ".",
         "Correlacionar con clínica, antecedentes y evolución del paciente para definir conducta.",
+        evaluations,
     )
 
 
@@ -222,8 +267,8 @@ def suggest_conclusion(
     if SERVICE_TOKEN and x_service_token != SERVICE_TOKEN:
         raise HTTPException(status_code=401, detail="Token de servicio inválido.")
 
-    findings, interpretation = _parameter_interpretation(request.parameters)
-    pubmed_refs = _pubmed_references(request.exam_name, request.exam_code, max_items=3)
+    findings, interpretation, evaluations = _parameter_interpretation(request.parameters)
+    pubmed_refs = _pubmed_references(request.examName, request.examCode, max_items=3)
     references = (pubmed_refs + GUIDELINE_REFERENCES)[:5]
     confidence = _confidence_level(request, len(references))
 
@@ -252,4 +297,5 @@ def suggest_conclusion(
         disclaimer=disclaimer,
         confidenceLevel=confidence,
         references=references,
+        parameterEvaluations=evaluations,
     )

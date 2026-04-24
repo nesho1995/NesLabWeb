@@ -25,6 +25,14 @@ public sealed record ConclusionReferenceDto(
     string Source,
     DateTime? PublishedAtUtc);
 
+public sealed record ConclusionParameterEvaluationDto(
+    string Name,
+    string Status,
+    string? Value,
+    string? Unit,
+    string? ReferenceText,
+    string? Notes);
+
 public sealed record SuggestConclusionResponseDto(
     string DraftConclusion,
     string Interpretation,
@@ -32,7 +40,8 @@ public sealed record SuggestConclusionResponseDto(
     string Limitations,
     string Disclaimer,
     string ConfidenceLevel,
-    IReadOnlyList<ConclusionReferenceDto> References);
+    IReadOnlyList<ConclusionReferenceDto> References,
+    IReadOnlyList<ConclusionParameterEvaluationDto> ParameterEvaluations);
 
 public sealed record SuggestConclusionFeedbackRequestDto(
     int OrderId,

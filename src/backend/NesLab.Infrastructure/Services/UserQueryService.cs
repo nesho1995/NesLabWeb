@@ -21,7 +21,6 @@ public sealed class UserQueryService(NesLabDbContext db) : IUserQueryService
                 x.Username,
                 x.FullName,
                 x.IsActive,
-                x.UserRoles.Select(ur => ur.RoleId).Distinct().Order().ToList(),
                 x.UserRoles
                     .Select(ur => ur.Role.Code)
                     .Distinct()

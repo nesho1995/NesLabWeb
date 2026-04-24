@@ -97,6 +97,15 @@ public sealed class LabResultsController(
         {
             return BadRequest(new { message = ex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    message = $"Asistente IA no disponible temporalmente. {ex.Message}"
+                });
+        }
     }
 
     [HttpPost("lines/{lineId:int}/suggest-conclusion/feedback")]

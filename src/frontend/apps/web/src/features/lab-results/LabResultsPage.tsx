@@ -138,6 +138,20 @@ function evalBadge(status: 'bajo' | 'normal' | 'alto' | null) {
   );
 }
 
+function aiStatusBadge(status: string) {
+  const s = status.toLowerCase();
+  if (s === 'normal') {
+    return <span className="pro-pill is-green">Normal</span>;
+  }
+  if (s === 'alto') {
+    return <span className="pro-pill" style={{ background: '#fef2f2', color: '#b91c1c', borderColor: '#fecaca' }}>Alto</span>;
+  }
+  if (s === 'bajo') {
+    return <span className="pro-pill" style={{ background: '#fff7ed', color: '#c2410c', borderColor: '#fed7aa' }}>Bajo</span>;
+  }
+  return <span className="pro-pill">Sin rango</span>;
+}
+
 function esc(value: string | null | undefined): string {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -606,8 +620,8 @@ export function LabResultsPage() {
                               </div>
                             ))}
                           {row.resultFieldDefinitions.filter((d) => d.isActive).length === 0 && (
-                            <p className="pro-muted" style={{ fontSize: 12, margin: 0 }}>
-                              Este examen no tiene parametros activos en el catalogo. Ajusta el examen o usa formato texto.
+                            <p className="pro-muted" style={{ fontSize: 12, margin: 0, color: '#b45309' }}>
+                              Este examen no tiene plantilla activa en catálogo. Configure parámetros y referencias para evaluación automática.
                             </p>
                           )}
                           <div>
@@ -626,7 +640,7 @@ export function LabResultsPage() {
                           {aiByLineId[row.lineId] && (
                             <div style={{ border: '1px solid #bfdbfe', borderRadius: 8, padding: 8, background: '#f8fbff' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                                <strong style={{ fontSize: 12 }}>Sugerencia IA</strong>
+                                <strong style={{ fontSize: 12 }}>Conclusión sugerida (editable)</strong>
                                 <span className="pro-pill" style={{ fontSize: 11 }}>
                                   Confianza: {aiByLineId[row.lineId].confidenceLevel}
                                 </span>
@@ -634,6 +648,20 @@ export function LabResultsPage() {
                               <p style={{ margin: '6px 0', fontSize: 12, lineHeight: 1.4 }}>
                                 {aiByLineId[row.lineId].draftConclusion}
                               </p>
+                              <p style={{ margin: '6px 0', fontSize: 12 }}>
+                                <strong>Interpretación técnica (IA):</strong> {aiByLineId[row.lineId].interpretation}
+                              </p>
+                              {aiByLineId[row.lineId].parameterEvaluations.length > 0 && (
+                                <div style={{ marginTop: 6, display: 'grid', gap: 4 }}>
+                                  {aiByLineId[row.lineId].parameterEvaluations.slice(0, 6).map((ev, idx) => (
+                                    <div key={`${row.lineId}-pev-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                                      <span style={{ minWidth: 110, fontWeight: 600 }}>{ev.name}</span>
+                                      {aiStatusBadge(ev.status)}
+                                      {ev.value && <span className="pro-muted">{ev.value}{ev.unit ? ` ${ev.unit}` : ''}</span>}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                               <p className="pro-muted" style={{ margin: '6px 0', fontSize: 11 }}>
                                 {aiByLineId[row.lineId].disclaimer}
                               </p>
@@ -692,7 +720,7 @@ export function LabResultsPage() {
                           {aiByLineId[row.lineId] && (
                             <div style={{ border: '1px solid #bfdbfe', borderRadius: 8, padding: 8, background: '#f8fbff' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                                <strong style={{ fontSize: 12 }}>Sugerencia IA</strong>
+                                <strong style={{ fontSize: 12 }}>Conclusión sugerida (editable)</strong>
                                 <span className="pro-pill" style={{ fontSize: 11 }}>
                                   Confianza: {aiByLineId[row.lineId].confidenceLevel}
                                 </span>
@@ -700,6 +728,20 @@ export function LabResultsPage() {
                               <p style={{ margin: '6px 0', fontSize: 12, lineHeight: 1.4 }}>
                                 {aiByLineId[row.lineId].draftConclusion}
                               </p>
+                              <p style={{ margin: '6px 0', fontSize: 12 }}>
+                                <strong>Interpretación técnica (IA):</strong> {aiByLineId[row.lineId].interpretation}
+                              </p>
+                              {aiByLineId[row.lineId].parameterEvaluations.length > 0 && (
+                                <div style={{ marginTop: 6, display: 'grid', gap: 4 }}>
+                                  {aiByLineId[row.lineId].parameterEvaluations.slice(0, 6).map((ev, idx) => (
+                                    <div key={`${row.lineId}-txt-pev-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                                      <span style={{ minWidth: 110, fontWeight: 600 }}>{ev.name}</span>
+                                      {aiStatusBadge(ev.status)}
+                                      {ev.value && <span className="pro-muted">{ev.value}{ev.unit ? ` ${ev.unit}` : ''}</span>}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                               <p className="pro-muted" style={{ margin: '6px 0', fontSize: 11 }}>
                                 {aiByLineId[row.lineId].disclaimer}
                               </p>
