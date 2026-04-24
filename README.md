@@ -34,6 +34,7 @@ Sistema web para laboratorio clinico (LIS) con foco en operacion diaria, cumplim
 - [Pruebas E2E](docs/PRUEBAS-E2E.md)
 - [Monitoreo y alertas](docs/MONITOREO-ALERTAS.md)
 - [Operacion Linux en produccion](docs/PRODUCCION-LINUX-OPS.md)
+- [Seguridad de produccion](docs/SEGURIDAD-PRODUCCION.md)
 - [SLA de soporte](docs/SLA-SOPORTE.md)
 - [Proceso de tickets](docs/PROCESO-TICKETS.md)
 
