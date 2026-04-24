@@ -113,6 +113,19 @@ test.describe("Validacion completa de modulos (datos)", () => {
       const exam = (await detail.json()) as { parameters: Array<{ name: string }> };
       expect(exam.parameters.length).toBeGreaterThanOrEqual(2);
 
+      const invalidPanel = await request.put(`/api/lab-exams/${examId}`, {
+        headers,
+        data: {
+          code: `E2E-${suffix}`,
+          name: `Examen E2E ${suffix} Panel Invalido`,
+          price: 210,
+          isActive: true,
+          resultFormat: "panel",
+          parameters: []
+        }
+      });
+      expect(invalidPanel.status()).toBeGreaterThanOrEqual(400);
+
       const update = await request.put(`/api/lab-exams/${examId}`, {
         headers,
         data: {
@@ -275,6 +288,24 @@ test.describe("Validacion completa de modulos (datos)", () => {
     });
 
     await test.step("Ordenes, muestras, resultados y offline sync", async () => {
+      const createOrder = async (useSarInvoice: boolean, idemTag: string) =>
+        request.post("/api/orders", {
+          headers: { ...headers, "Idempotency-Key": `${idemTag}-${suffix}` },
+          data: {
+            patientId,
+            discountPercent: 0,
+            discountTypeLabel: "E2E",
+            lines: [{ labExamId: examId }],
+            paymentMethod: "Efectivo",
+            paymentMethodId: paymentMethodId || null,
+            amountReceived: 500,
+            isFinalConsumer: true,
+            clientLegalName: null,
+            clientRtn: null,
+            useSarInvoice
+          }
+        });
+
       const orderBad = await request.post("/api/orders", {
         headers: { ...headers, "Idempotency-Key": `bad-${suffix}` },
         data: {
@@ -293,22 +324,30 @@ test.describe("Validacion completa de modulos (datos)", () => {
       });
       expect(orderBad.status()).toBeGreaterThanOrEqual(400);
 
-      const orderOk = await request.post("/api/orders", {
-        headers: { ...headers, "Idempotency-Key": `ok-${suffix}` },
-        data: {
-          patientId,
-          discountPercent: 0,
-          discountTypeLabel: "E2E",
-          lines: [{ labExamId: examId }],
-          paymentMethod: "Efectivo",
-          paymentMethodId: paymentMethodId || null,
-          amountReceived: 500,
-          isFinalConsumer: true,
-          clientLegalName: null,
-          clientRtn: null,
-          useSarInvoice: false
-        }
-      });
+      const fiscalCfg = await request.get("/api/fiscal/company", { headers });
+      expect(fiscalCfg.ok()).toBeTruthy();
+      const fiscal = (await fiscalCfg.json()) as { useCai: boolean; allowNonSarDocument: boolean };
+
+      if (!fiscal.useCai) {
+        const sarNotAvailable = await createOrder(true, "sar-no-cai");
+        expect(sarNotAvailable.status()).toBeGreaterThanOrEqual(400);
+      } else if (!fiscal.allowNonSarDocument) {
+        const internalNotAllowed = await createOrder(false, "internal-not-allowed");
+        expect(internalNotAllowed.status()).toBeGreaterThanOrEqual(400);
+      } else {
+        const internalDoc = await createOrder(false, "internal-ok");
+        expect(internalDoc.ok()).toBeTruthy();
+        const internalOrder = (await internalDoc.json()) as { caiMode: boolean };
+        expect(internalOrder.caiMode).toBeFalsy();
+
+        const sarDoc = await createOrder(true, "sar-ok");
+        expect(sarDoc.ok()).toBeTruthy();
+        const sarOrder = (await sarDoc.json()) as { caiMode: boolean };
+        expect(sarOrder.caiMode).toBeTruthy();
+      }
+
+      const defaultUseSar = fiscal.useCai && !fiscal.allowNonSarDocument;
+      const orderOk = await createOrder(defaultUseSar, "ok");
       expect(orderOk.ok()).toBeTruthy();
       const order = (await orderOk.json()) as { orderId: number; invoiceNumber: string; caiMode: boolean };
       orderId = order.orderId;
@@ -348,6 +387,12 @@ test.describe("Validacion completa de modulos (datos)", () => {
       const linesBody = (await lines.json()) as { items: Array<{ lineId: number }> };
       expect(linesBody.items.length).toBeGreaterThan(0);
       const lineId = linesBody.items[0].lineId;
+
+      const linePatchMissingText = await request.patch(`/api/lab-results/lines/${lineId}`, {
+        headers,
+        data: { resultNotes: "   ", resultParameterValues: null, markValidated: true }
+      });
+      expect(linePatchMissingText.status()).toBeGreaterThanOrEqual(400);
 
       const linePatch = await request.patch(`/api/lab-results/lines/${lineId}`, {
         headers,

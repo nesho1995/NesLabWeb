@@ -200,6 +200,12 @@ public sealed class LabResultService(
 
         if (request.MarkValidated)
         {
+            var hasRenderableResult = !string.IsNullOrWhiteSpace(line.ResultNotes);
+            if (!hasRenderableResult)
+            {
+                throw new InvalidOperationException("No se puede validar sin resultado. Ingrese texto o parametros del examen.");
+            }
+
             if (line.ValidatedAtUtc is null)
             {
                 line.ValidatedAtUtc = DateTime.UtcNow;
