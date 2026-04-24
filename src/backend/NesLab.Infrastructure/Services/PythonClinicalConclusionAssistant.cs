@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using NesLab.Application.DTOs;
 using NesLab.Application.Interfaces;
 
