@@ -37,6 +37,16 @@ $env:E2E_PASSWORD = "tu_password"
   - Caja
   - Resultados
   - Offline-sync
+- Validacion transversal de modulos de datos (`all-modules-data.spec.ts`):
+  - Ops/auditoria
+  - Pacientes
+  - Examenes (texto/panel)
+  - Formas de pago
+  - Inventario de reactivos
+  - Caja/fiscal/company settings
+  - Usuarios y roles
+  - Ordenes/muestras/resultados
+  - Offline regularizations
 - Flujo UI completo (`full-ui-flow.spec.ts`):
   - Abrir caja
   - Crear orden real desde UI
