@@ -1,0 +1,121 @@
+{
+  "version": 3,
+  "targets": {
+    "net9.0": {
+      "NesLab.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/NesLab.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/NesLab.Domain.dll": {}
+        }
+      },
+      "NesLab.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/NesLab.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/NesLab.Shared.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "NesLab.Domain/1.0.0": {
+      "type": "project",
+      "path": "../NesLab.Domain/NesLab.Domain.csproj",
+      "msbuildProject": "../NesLab.Domain/NesLab.Domain.csproj"
+    },
+    "NesLab.Shared/1.0.0": {
+      "type": "project",
+      "path": "../NesLab.Shared/NesLab.Shared.csproj",
+      "msbuildProject": "../NesLab.Shared/NesLab.Shared.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net9.0": [
+      "NesLab.Domain >= 1.0.0",
+      "NesLab.Shared >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\njhernandez\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Application\\NesLab.Application.csproj",
+      "projectName": "NesLab.Application",
+      "projectPath": "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Application\\NesLab.Application.csproj",
+      "packagesPath": "C:\\Users\\njhernandez\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Application\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\njhernandez\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net9.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {
+            "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Domain\\NesLab.Domain.csproj": {
+              "projectPath": "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Domain\\NesLab.Domain.csproj"
+            },
+            "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Shared\\NesLab.Shared.csproj": {
+              "projectPath": "C:\\Users\\njhernandez\\source\\repos\\NesLab\\NesLabWeb\\src\\backend\\NesLab.Shared\\NesLab.Shared.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net9.0": {
+        "targetAlias": "net9.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}
