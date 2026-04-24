@@ -16,13 +16,15 @@ public sealed class SamplesController(ISampleService samples) : ControllerBase
     public async Task<ActionResult<PagedResult<SampleListItemDto>>> Get(
         [FromQuery] string? search,
         [FromQuery] bool onlyPending = false,
+        [FromQuery] DateOnly? fromDate = null,
+        [FromQuery] DateOnly? toDate = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         return Ok(
             await samples.GetSamplesAsync(
-                new SamplesListQuery(search, onlyPending, page, pageSize), cancellationToken));
+                new SamplesListQuery(search, onlyPending, page, pageSize, fromDate, toDate), cancellationToken));
     }
 
     [HttpPost]

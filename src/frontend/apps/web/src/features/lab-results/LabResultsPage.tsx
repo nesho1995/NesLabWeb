@@ -7,6 +7,22 @@ import type { ResultLineItem } from './labResults.types';
 type StatusFilter = 'todos' | 'pendientes' | 'validados';
 type FormatFilter = 'todos' | 'texto' | 'panel';
 type CompletenessFilter = 'todos' | 'incompletos-panel';
+const tzHn = 'America/Tegucigalpa';
+
+function dateTimeHn(iso: string | null | undefined) {
+  if (!iso) {
+    return '—';
+  }
+  return new Date(iso).toLocaleString('es-HN', {
+    timeZone: tzHn,
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
 
 function resultPreview(line: ResultLineItem): { text: string; isEmpty: boolean } {
   if (line.resultFormat === 'texto' || !line.resultFieldDefinitions?.length) {
@@ -119,7 +135,7 @@ function esc(value: string | null | undefined): string {
 
 function printResultLine(line: ResultLineItem) {
   const w = globalThis.open('about:blank', '_blank', 'width=900,height=700');
-  const when = new Date().toLocaleString('es-HN');
+  const when = new Date().toLocaleString('es-HN', { timeZone: tzHn });
   const rows =
     line.resultFormat === 'panel'
       ? [...line.resultFieldDefinitions]
@@ -219,6 +235,8 @@ export function LabResultsPage() {
   const [status, setStatus] = useState<StatusFilter>('pendientes');
   const [formatFilter, setFormatFilter] = useState<FormatFilter>('todos');
   const [completenessFilter, setCompletenessFilter] = useState<CompletenessFilter>('todos');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<ResultLineItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -232,7 +250,7 @@ export function LabResultsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, status, formatFilter, completenessFilter]);
+  }, [search, status, formatFilter, completenessFilter, fromDate, toDate]);
 
   useEffect(() => {
     let ok = true;
@@ -240,7 +258,7 @@ export function LabResultsPage() {
       setLoading(true);
       setError(null);
       try {
-        const r = await fetchResultLines(search, status, formatFilter, completenessFilter, page, 20);
+        const r = await fetchResultLines(search, status, formatFilter, completenessFilter, fromDate, toDate, page, 20);
         if (!ok) {
           return;
         }
@@ -259,7 +277,7 @@ export function LabResultsPage() {
     return () => {
       ok = false;
     };
-  }, [search, status, formatFilter, completenessFilter, page, listVersion]);
+  }, [search, status, formatFilter, completenessFilter, fromDate, toDate, page, listVersion]);
 
   useEffect(() => {
     if (editingId === null) {
@@ -400,6 +418,24 @@ export function LabResultsPage() {
               <option value="incompletos-panel">Pendiente e incompleto</option>
             </select>
           </div>
+          <div className="pro-field results-mobile__field-sm" style={{ width: 180 }}>
+            <label>Desde</label>
+            <input
+              type="date"
+              className="pro-input"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </div>
+          <div className="pro-field results-mobile__field-sm" style={{ width: 180 }}>
+            <label>Hasta</label>
+            <input
+              type="date"
+              className="pro-input"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -439,7 +475,7 @@ export function LabResultsPage() {
                         {row.invoiceNumber || `ORDEN-${row.orderId}`}
                       </span>
                       <div className="pro-muted" style={{ fontSize: 11, marginTop: 2 }}>
-                        {new Date(row.orderAtUtc).toLocaleString('es-HN')}
+                        {dateTimeHn(row.orderAtUtc)}
                       </div>
                     </td>
                     <td>{row.patientName}</td>
@@ -578,7 +614,7 @@ export function LabResultsPage() {
                           )}
                           {row.validatedAtUtc && (
                             <div className="pro-muted" style={{ marginTop: 2, fontSize: 11 }}>
-                              {new Date(row.validatedAtUtc).toLocaleString('es-HN')}
+                              {dateTimeHn(row.validatedAtUtc)}
                             </div>
                           )}
                         </>

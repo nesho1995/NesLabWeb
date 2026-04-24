@@ -16,12 +16,14 @@ public sealed class LabResultsController(ILabResultService results) : Controller
         [FromQuery] string? status,
         [FromQuery] string? format,
         [FromQuery] string? completeness,
+        [FromQuery] DateOnly? fromDate,
+        [FromQuery] DateOnly? toDate,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         var r = await results.GetResultLinesAsync(
-            new ResultLinesListQuery(search, status, format, completeness, page, pageSize),
+            new ResultLinesListQuery(search, status, format, completeness, page, pageSize, fromDate, toDate),
             cancellationToken);
         return Ok(r);
     }

@@ -13,6 +13,8 @@ public sealed class SampleService(
     ITenantContext tenant,
     ICurrentUserContext current) : ISampleService
 {
+    private static readonly TimeZoneInfo HondurasTimeZone = ResolveHondurasTimeZone();
+
     public async Task<PagedResult<SampleListItemDto>> GetSamplesAsync(
         SamplesListQuery query,
         CancellationToken cancellationToken = default)
@@ -21,6 +23,12 @@ public sealed class SampleService(
         var page = Math.Max(1, query.Page);
         var size = Math.Clamp(query.PageSize, 1, 100);
         var search = query.Search?.Trim();
+        var fromUtc = query.FromDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.FromDate.Value);
+        var toUtcExclusive = query.ToDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.ToDate.Value.AddDays(1));
 
         IQueryable<LabSample> q = db.LabSamples
             .AsNoTracking()
@@ -50,6 +58,16 @@ public sealed class SampleService(
                          || s.Order.InvoiceNumber.ToLower().Contains(s2)
                          || s.Order.Patient.FullName.ToLower().Contains(s2));
             }
+        }
+
+        if (fromUtc is not null)
+        {
+            q = q.Where(s => s.Order.OrderAtUtc >= fromUtc.Value);
+        }
+
+        if (toUtcExclusive is not null)
+        {
+            q = q.Where(s => s.Order.OrderAtUtc < toUtcExclusive.Value);
         }
 
         var total = await q.CountAsync(cancellationToken);
@@ -189,5 +207,31 @@ public sealed class SampleService(
         }
 
         return "M" + orderId + "-" + Guid.NewGuid().ToString("N")[..12].ToUpperInvariant();
+    }
+
+    private static DateTime ToUtcStartOfDay(DateOnly date)
+    {
+        var local = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(local, HondurasTimeZone);
+    }
+
+    private static TimeZoneInfo ResolveHondurasTimeZone()
+    {
+        var ids = new[] { "America/Tegucigalpa", "Central America Standard Time" };
+        foreach (var id in ids)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+            catch (InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return TimeZoneInfo.Utc;
     }
 }

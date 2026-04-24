@@ -4,6 +4,8 @@ import type { PagedResult, SampleListItem } from './samples.types';
 export function fetchSamples(
   search: string,
   onlyPending: boolean,
+  fromDate: string,
+  toDate: string,
   page: number,
   pageSize = 20
 ): Promise<PagedResult<SampleListItem>> {
@@ -13,6 +15,12 @@ export function fetchSamples(
   }
   if (onlyPending) {
     sp.set('onlyPending', 'true');
+  }
+  if (fromDate) {
+    sp.set('fromDate', fromDate);
+  }
+  if (toDate) {
+    sp.set('toDate', toDate);
   }
   sp.set('page', String(page));
   sp.set('pageSize', String(pageSize));

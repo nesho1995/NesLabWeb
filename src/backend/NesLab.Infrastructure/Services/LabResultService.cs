@@ -16,6 +16,7 @@ public sealed class LabResultService(
     ICurrentUserContext current) : ILabResultService
 {
     private static readonly JsonSerializerOptions JsonOpt = new() { PropertyNamingPolicy = null };
+    private static readonly TimeZoneInfo HondurasTimeZone = ResolveHondurasTimeZone();
 
     public async Task<PagedResult<ResultLineListItemDto>> GetResultLinesAsync(
         ResultLinesListQuery query,
@@ -28,6 +29,12 @@ public sealed class LabResultService(
         var status = (query.Status ?? "todos").Trim().ToLowerInvariant();
         var format = (query.Format ?? "todos").Trim().ToLowerInvariant();
         var completeness = (query.Completeness ?? "todos").Trim().ToLowerInvariant();
+        var fromUtc = query.FromDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.FromDate.Value);
+        var toUtcExclusive = query.ToDate is null
+            ? (DateTime?)null
+            : ToUtcStartOfDay(query.ToDate.Value.AddDays(1));
 
         IQueryable<OrderLine> baseQ = db.OrderLines
             .AsNoTracking()
@@ -67,6 +74,16 @@ public sealed class LabResultService(
                          || l.ExamName.ToLower().Contains(s)
                          || l.LabExam.Code.ToLower().Contains(s));
             }
+        }
+
+        if (fromUtc is not null)
+        {
+            baseQ = baseQ.Where(l => l.Order.OrderAtUtc >= fromUtc.Value);
+        }
+
+        if (toUtcExclusive is not null)
+        {
+            baseQ = baseQ.Where(l => l.Order.OrderAtUtc < toUtcExclusive.Value);
         }
 
         var requiresIncompleteFilter = completeness is "incompletos-panel" or "panel-incompleto";
@@ -334,5 +351,31 @@ public sealed class LabResultService(
         }
 
         return filled < activeDefs.Count;
+    }
+
+    private static DateTime ToUtcStartOfDay(DateOnly date)
+    {
+        var local = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(local, HondurasTimeZone);
+    }
+
+    private static TimeZoneInfo ResolveHondurasTimeZone()
+    {
+        var ids = new[] { "America/Tegucigalpa", "Central America Standard Time" };
+        foreach (var id in ids)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+            catch (InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return TimeZoneInfo.Utc;
     }
 }

@@ -16,7 +16,9 @@ public sealed record SamplesListQuery(
     string? Search,
     bool OnlyPending,
     int Page = 1,
-    int PageSize = 20);
+    int PageSize = 20,
+    DateOnly? FromDate = null,
+    DateOnly? ToDate = null);
 
 public sealed record CreateSampleRequest(
     int OrderId,

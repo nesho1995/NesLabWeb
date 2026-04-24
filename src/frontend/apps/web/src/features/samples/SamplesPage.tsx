@@ -5,11 +5,29 @@ import { createSample, fetchSamples, updateSample } from './samples.api';
 import type { SampleListItem } from './samples.types';
 
 const pageSize = 20;
+const tzHn = 'America/Tegucigalpa';
+
+function dateTimeHn(iso: string | null | undefined) {
+  if (!iso) {
+    return '—';
+  }
+  return new Date(iso).toLocaleString('es-HN', {
+    timeZone: tzHn,
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
 
 export function SamplesPage() {
   const { hasPermission, hasAnyPermission } = useAuth();
   const [search, setSearch] = useState('');
   const [onlyPending, setOnlyPending] = useState(true);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<SampleListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -24,7 +42,7 @@ export function SamplesPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, onlyPending]);
+  }, [search, onlyPending, fromDate, toDate]);
 
   useEffect(() => {
     let ok = true;
@@ -32,7 +50,7 @@ export function SamplesPage() {
       setLoading(true);
       setError(null);
       try {
-        const r = await fetchSamples(search, onlyPending, page, pageSize);
+        const r = await fetchSamples(search, onlyPending, fromDate, toDate, page, pageSize);
         if (ok) {
           setRows(r.items);
           setTotal(r.totalCount);
@@ -50,7 +68,7 @@ export function SamplesPage() {
     return () => {
       ok = false;
     };
-  }, [search, onlyPending, page, ver]);
+  }, [search, onlyPending, fromDate, toDate, page, ver]);
 
   useEffect(() => {
     if (editing) {
@@ -180,6 +198,24 @@ export function SamplesPage() {
               <span>Sin registro de toma</span>
             </label>
           </div>
+          <div className="pro-field samples-mobile__pending" style={{ width: 180 }}>
+            <label>Desde</label>
+            <input
+              type="date"
+              className="pro-input"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </div>
+          <div className="pro-field samples-mobile__pending" style={{ width: 180 }}>
+            <label>Hasta</label>
+            <input
+              type="date"
+              className="pro-input"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -224,7 +260,7 @@ export function SamplesPage() {
                     </div>
                     <div style={{ fontSize: 13, marginTop: 2 }}>{r.patientName}</div>
                     <div className="pro-muted" style={{ fontSize: 11, marginTop: 2 }}>
-                      {new Date(r.orderAtUtc).toLocaleString('es-HN')}
+                      {dateTimeHn(r.orderAtUtc)}
                     </div>
                   </td>
                   <td style={{ maxWidth: 240, fontSize: 13, wordBreak: 'break-word' }}>{r.notes ?? '—'}</td>
@@ -233,7 +269,7 @@ export function SamplesPage() {
                       <>
                         <span className="pro-pill is-green">Registrada</span>
                         <div className="pro-muted" style={{ marginTop: 4, fontSize: 11 }}>
-                          {new Date(r.collectedAtUtc).toLocaleString('es-HN')}
+                          {dateTimeHn(r.collectedAtUtc)}
                         </div>
                       </>
                     ) : (

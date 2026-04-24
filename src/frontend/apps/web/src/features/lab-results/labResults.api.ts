@@ -6,6 +6,8 @@ export function fetchResultLines(
   status: 'todos' | 'pendientes' | 'validados',
   format: 'todos' | 'texto' | 'panel',
   completeness: 'todos' | 'incompletos-panel',
+  fromDate: string,
+  toDate: string,
   page: number,
   pageSize = 20
 ): Promise<PagedResult<ResultLineItem>> {
@@ -19,6 +21,12 @@ export function fetchResultLines(
   }
   if (completeness !== 'todos') {
     sp.set('completeness', completeness);
+  }
+  if (fromDate) {
+    sp.set('fromDate', fromDate);
+  }
+  if (toDate) {
+    sp.set('toDate', toDate);
   }
   sp.set('page', String(page));
   sp.set('pageSize', String(pageSize));
