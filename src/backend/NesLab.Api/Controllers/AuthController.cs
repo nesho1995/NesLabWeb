@@ -2,22 +2,40 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using NesLab.Api.Operations;
 using NesLab.Application.DTOs;
 using NesLab.Application.Interfaces;
+using NesLab.Application.Abstractions;
 
 namespace NesLab.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class AuthController(IAuthService authService) : ControllerBase
+public sealed class AuthController(
+    IAuthService authService,
+    IAuthLoginAuditWriter authLoginAuditWriter,
+    ITenantContext tenantContext) : ControllerBase
 {
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting("AuthLoginPolicy")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var result = await authService.LoginAsync(request, cancellationToken);
-        return result is null ? Unauthorized(new { message = "Credenciales invalidas." }) : Ok(result);
+        var loginResult = await authService.LoginDetailedAsync(request, cancellationToken);
+        var response = loginResult.Response;
+        await authLoginAuditWriter.WriteAsync(
+            new AuthLoginAuditEntry(
+                DateTime.UtcNow,
+                tenantContext.CompanyId,
+                response?.UserId,
+                (request.Username ?? string.Empty).Trim(),
+                loginResult.Success,
+                loginResult.FailureReason,
+                HttpContext.Connection.RemoteIpAddress?.ToString(),
+                HttpContext.Request.Headers.UserAgent.ToString()),
+            cancellationToken);
+
+        return response is null ? Unauthorized(new { message = "Credenciales invalidas." }) : Ok(response);
     }
 
     [HttpGet("me")]

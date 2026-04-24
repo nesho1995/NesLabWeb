@@ -17,10 +17,16 @@ public sealed class AuthService(
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
+        var result = await LoginDetailedAsync(request, cancellationToken);
+        return result.Response;
+    }
+
+    public async Task<LoginAttemptResult> LoginDetailedAsync(LoginRequest request, CancellationToken cancellationToken)
+    {
         var username = (request.Username ?? string.Empty).Trim();
         if (username.Length == 0)
         {
-            return null;
+            return new LoginAttemptResult(null, false, "EMPTY_USERNAME");
         }
         var password = request.Password ?? string.Empty;
         var normalizedUsername = username.ToLowerInvariant();
@@ -33,7 +39,7 @@ public sealed class AuthService(
 
         if (user is null)
         {
-            return null;
+            return new LoginAttemptResult(null, false, "USER_NOT_FOUND_OR_INACTIVE");
         }
 
         var usePbkdf2 = string.Equals(user.PasswordAlgorithm, "PBKDF2", StringComparison.OrdinalIgnoreCase)
@@ -45,7 +51,7 @@ public sealed class AuthService(
 
         if (!validPassword)
         {
-            return null;
+            return new LoginAttemptResult(null, false, "INVALID_PASSWORD");
         }
 
         if (string.Equals(user.PasswordAlgorithm, "SHA256", StringComparison.Ordinal))
@@ -67,7 +73,7 @@ public sealed class AuthService(
         await RevokeActiveRefreshTokensAsync(user.Id, cancellationToken);
         var refreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
-        return new AuthResponse(
+        var response = new AuthResponse(
             token,
             refreshToken,
             expiresAtUtc,
@@ -76,6 +82,7 @@ public sealed class AuthService(
             user.FullName,
             roles,
             permissions);
+        return new LoginAttemptResult(response, true, "NONE");
     }
 
     public async Task<AuthResponse?> RefreshAsync(RefreshRequest request, CancellationToken cancellationToken)

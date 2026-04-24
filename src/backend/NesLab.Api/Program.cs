@@ -22,6 +22,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<ICriticalActionLogWriter, FileCriticalActionLogWriter>();
+builder.Services.AddSingleton<IAuthLoginAuditWriter, FileAuthLoginAuditWriter>();
 builder.Services.AddScoped<ICurrentUserContext, HttpUserContext>();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddRateLimiter(options =>

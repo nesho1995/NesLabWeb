@@ -8,7 +8,10 @@ namespace NesLab.Api.Controllers;
 
 [ApiController]
 [Route("api/ops")]
-public sealed class OpsController(NesLabDbContext db, ICriticalActionLogWriter criticalLogWriter) : ControllerBase
+public sealed class OpsController(
+    NesLabDbContext db,
+    ICriticalActionLogWriter criticalLogWriter,
+    IAuthLoginAuditWriter authLoginAuditWriter) : ControllerBase
 {
     [HttpGet("health")]
     [AllowAnonymous]
@@ -63,6 +66,24 @@ public sealed class OpsController(NesLabDbContext db, ICriticalActionLogWriter c
         {
             total = rows.Count,
             rows
+        });
+    }
+
+    [HttpGet("security/auth-login-attempts")]
+    [Authorize(Policy = "RequireUserRead")]
+    public async Task<IActionResult> RecentAuthLoginAttempts(
+        [FromQuery] int take = 200,
+        [FromQuery] bool onlyFailed = false,
+        CancellationToken cancellationToken = default)
+    {
+        var top = Math.Clamp(take, 1, 1000);
+        var rows = await authLoginAuditWriter.ReadRecentAsync(top, cancellationToken);
+        var filtered = onlyFailed ? rows.Where(x => !x.Success).ToList() : rows;
+
+        return Ok(new
+        {
+            total = filtered.Count,
+            rows = filtered
         });
     }
 }
