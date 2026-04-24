@@ -1140,6 +1140,48 @@ a.pro-content-link:hover {
     padding: 0.56rem 0.52rem;
   }
 }
+
+/* --- Mobile tuning for key modules --- */
+@media (max-width: 760px) {
+  .samples-mobile__row,
+  .results-mobile__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .samples-mobile__order-id,
+  .samples-mobile__order-note,
+  .samples-mobile__submit,
+  .samples-mobile__pending,
+  .results-mobile__field-sm {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .samples-mobile__submit .pro-button {
+    width: 100%;
+  }
+  .samples-mobile__table,
+  .results-mobile__table {
+    min-width: 620px !important;
+  }
+  .samples-mobile__tablecard,
+  .results-mobile__tablecard,
+  .paymethods-mobile__tablecard {
+    padding: 0 !important;
+  }
+  .paymethods-mobile__form {
+    max-width: 100% !important;
+  }
+  .paymethods-mobile__form .pro-input {
+    max-width: 100% !important;
+  }
+  .paymethods-mobile__form .pro-btn {
+    width: 100%;
+  }
+  .paymethods-mobile__table {
+    min-width: 640px;
+  }
+}
 /* Inicio: panel de trabajo (no estilo landing) */
 .pro-dash {
   max-width: 100%;

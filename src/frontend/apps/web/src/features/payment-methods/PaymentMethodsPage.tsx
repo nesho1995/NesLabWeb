@@ -103,7 +103,7 @@ export function PaymentMethodsPage() {
   }
 
   return (
-    <div>
+    <div className="paymethods-mobile">
       <div className="pro-hero" style={{ marginBottom: 12 }}>
         <h1 className="pro-hero__title" style={{ fontSize: 22 }}>
           Formas de pago (empresa)
@@ -129,12 +129,12 @@ export function PaymentMethodsPage() {
         />
       </div>
       {loadError ? <p className="pro-alert">{loadError}</p> : null}
-      <div className="pro-card" style={{ marginBottom: 12, maxWidth: 900 }}>
+      <div className="pro-card paymethods-mobile__tablecard" style={{ marginBottom: 12, maxWidth: 900 }}>
         <h2 className="pro-h3" style={{ margin: '0 0 8px' }}>
           Formas actuales
         </h2>
-        <div style={{ overflow: 'auto' }}>
-          <table className="pro-list" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="paymethods-mobile__tablewrap" style={{ overflow: 'auto' }}>
+          <table className="pro-list paymethods-mobile__table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={{ textAlign: 'left', padding: 4 }}>Codigo</th>
@@ -245,7 +245,7 @@ export function PaymentMethodsPage() {
           Caja fis. = entra al arqueo. Vuelto = pide monto recibido.
         </p>
       </div>
-      <form onSubmit={onAdd} className="pro-card" style={{ maxWidth: 500 }}>
+      <form onSubmit={onAdd} className="pro-card paymethods-mobile__form" style={{ maxWidth: 500 }}>
         <h2 className="pro-h3" style={{ margin: '0 0 8px' }}>
           Agregar
         </h2>

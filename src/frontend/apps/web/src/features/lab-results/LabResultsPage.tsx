@@ -324,7 +324,7 @@ export function LabResultsPage() {
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <div>
+    <div className="results-mobile">
       <div className="pro-hero" style={{ marginBottom: 12, alignItems: 'flex-start' }}>
         <div>
           <h1 className="pro-hero__title">Resultados por linea de orden</h1>
@@ -354,8 +354,8 @@ export function LabResultsPage() {
         </div>
       </div>
 
-      <div className="pro-toolbar" style={{ marginBottom: 8 }}>
-        <div className="pro-toolbar__row" style={{ alignItems: 'flex-end' }}>
+      <div className="pro-toolbar results-mobile__filters" style={{ marginBottom: 8 }}>
+        <div className="pro-toolbar__row results-mobile__row" style={{ alignItems: 'flex-end' }}>
           <div className="pro-field" style={{ flex: 1, minWidth: 200 }}>
             <label>Buscar</label>
             <input
@@ -365,7 +365,7 @@ export function LabResultsPage() {
               placeholder="Nº orden, comprobante, paciente, codigo, examen"
             />
           </div>
-          <div className="pro-field" style={{ width: 200 }}>
+          <div className="pro-field results-mobile__field-sm" style={{ width: 200 }}>
             <label>Estado en laboratorio</label>
             <select
               className="pro-input"
@@ -377,7 +377,7 @@ export function LabResultsPage() {
               <option value="validados">Validados</option>
             </select>
           </div>
-          <div className="pro-field" style={{ width: 200 }}>
+          <div className="pro-field results-mobile__field-sm" style={{ width: 200 }}>
             <label>Formato</label>
             <select
               className="pro-input"
@@ -389,7 +389,7 @@ export function LabResultsPage() {
               <option value="panel">Solo panel</option>
             </select>
           </div>
-          <div className="pro-field" style={{ width: 220 }}>
+          <div className="pro-field results-mobile__field-sm" style={{ width: 220 }}>
             <label>Situación panel</label>
             <select
               className="pro-input"
@@ -405,10 +405,10 @@ export function LabResultsPage() {
 
       {error && <p className="pro-alert">{error}</p>}
 
-      <div className="pro-card" style={{ padding: 0, overflow: 'auto' }}>
+      <div className="pro-card results-mobile__tablecard" style={{ padding: 0, overflow: 'auto' }}>
         {loading && <p className="pro-muted" style={{ margin: 16 }}>Cargando…</p>}
         {!loading && (
-          <table className="pro-table" style={{ minWidth: 880 }}>
+          <table className="pro-table results-mobile__table" style={{ minWidth: 880 }}>
             <thead>
               <tr>
                 <th>Orden / factura</th>

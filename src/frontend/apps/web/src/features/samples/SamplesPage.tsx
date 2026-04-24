@@ -88,7 +88,7 @@ export function SamplesPage() {
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <div>
+    <div className="samples-mobile">
       <div className="pro-hero" style={{ marginBottom: 12, alignItems: 'flex-start' }}>
         <div>
           <h1 className="pro-hero__title">Muestras y etiquetado</h1>
@@ -117,7 +117,7 @@ export function SamplesPage() {
         </div>
       </div>
 
-      <div className="pro-card" style={{ marginBottom: 12 }}>
+      <div className="pro-card samples-mobile__register" style={{ marginBottom: 12 }}>
         <h3 className="pro-h3" style={{ margin: '0 0 10px' }}>
           Registrar muestra
         </h3>
@@ -125,8 +125,8 @@ export function SamplesPage() {
           Usa el id interno de la orden (el de la factura: puedes abrir comprobante desde caja; el id aparece en la
           ruta o en listados futuros de ordenes).
         </p>
-        <div className="pro-toolbar__row" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div className="pro-field" style={{ width: 200 }}>
+        <div className="pro-toolbar__row samples-mobile__row" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div className="pro-field samples-mobile__order-id" style={{ width: 200 }}>
             <label>Id de orden (interno)</label>
             <input
               className="pro-input"
@@ -136,7 +136,7 @@ export function SamplesPage() {
               placeholder="p. ej. 12"
             />
           </div>
-          <div className="pro-field" style={{ flex: 1, minWidth: 220 }}>
+          <div className="pro-field samples-mobile__order-note" style={{ flex: 1, minWidth: 220 }}>
             <label>Nota (ayunas, contenedor, prioridad...)</label>
             <input
               className="pro-input"
@@ -146,7 +146,7 @@ export function SamplesPage() {
               placeholder="Opcional"
             />
           </div>
-          <div className="pro-field" style={{ alignSelf: 'flex-end' }}>
+          <div className="pro-field samples-mobile__submit" style={{ alignSelf: 'flex-end' }}>
             <button
               className="pro-button"
               type="button"
@@ -159,8 +159,8 @@ export function SamplesPage() {
         </div>
       </div>
 
-      <div className="pro-toolbar" style={{ marginBottom: 8 }}>
-        <div className="pro-toolbar__row" style={{ alignItems: 'flex-end' }}>
+      <div className="pro-toolbar samples-mobile__filters" style={{ marginBottom: 8 }}>
+        <div className="pro-toolbar__row samples-mobile__row" style={{ alignItems: 'flex-end' }}>
           <div className="pro-field" style={{ flex: 1, minWidth: 200 }}>
             <label>Buscar</label>
             <input
@@ -170,7 +170,7 @@ export function SamplesPage() {
               placeholder="Codigo, orden, comprobante, paciente"
             />
           </div>
-          <div className="pro-field" style={{ width: 200 }}>
+          <div className="pro-field samples-mobile__pending" style={{ width: 200 }}>
             <label className="pro-inline">
               <input
                 type="checkbox"
@@ -185,10 +185,10 @@ export function SamplesPage() {
 
       {error && <p className="pro-alert">{error}</p>}
 
-      <div className="pro-card" style={{ padding: 0, overflow: 'auto' }}>
+      <div className="pro-card samples-mobile__tablecard" style={{ padding: 0, overflow: 'auto' }}>
         {loading && <p className="pro-muted" style={{ margin: 16 }}>Cargando</p>}
         {!loading && (
-          <table className="pro-table" style={{ minWidth: 720 }}>
+          <table className="pro-table samples-mobile__table" style={{ minWidth: 720 }}>
             <thead>
               <tr>
                 <th>Codigo</th>
