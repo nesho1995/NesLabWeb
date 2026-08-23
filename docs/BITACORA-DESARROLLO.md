@@ -60,6 +60,8 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - Se aplicó la propuesta visual al marco completo: menú lateral verde clínico, encabezado con cuenta y conexión, superficies unificadas, panel principal en cuadros y navegación inferior para tablets y teléfonos.
 - Se reforzó la alineación responsive: contenedores sin anchos mínimos accidentales, encabezados con ajuste seguro, formularios y acciones apilados en móvil y tablas desplazables dentro de sus tarjetas.
 - Se validaron las pantallas principales en 1440, 1024, 768, 390 y 360 px, sin desplazamiento horizontal de la página.
+- La selección de exámenes de una orden ahora puede abrirse como catálogo de pantalla completa, conservando búsqueda, selección, total y navegación táctil.
+- La futura migración de Tarjeta de salud debe resolver el examen por catálogo y mostrar/imprimir su nombre; los identificadores internos nunca deben aparecer en documentos para pacientes.
 
 ## Criterios antes de publicar
 
