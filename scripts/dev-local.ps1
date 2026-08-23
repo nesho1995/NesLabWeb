@@ -22,7 +22,15 @@ foreach ($command in @("node", "npm", "dotnet")) {
 if (-not $ConnectionString) {
   $securePassword = Read-Host "Contrasena del usuario MySQL 'neslab'" -AsSecureString
   $credential = [System.Net.NetworkCredential]::new("", $securePassword)
-  $ConnectionString = "Server=127.0.0.1;Port=3306;Database=neslab;User=neslab;Password=$($credential.Password);SslMode=None;AllowPublicKeyRetrieval=True"
+  $builder = [System.Data.Common.DbConnectionStringBuilder]::new()
+  $builder["Server"] = "127.0.0.1"
+  $builder["Port"] = 3306
+  $builder["Database"] = "neslab"
+  $builder["User"] = "neslab"
+  $builder["Password"] = $credential.Password
+  $builder["SslMode"] = "None"
+  $builder["AllowPublicKeyRetrieval"] = $true
+  $ConnectionString = $builder.ConnectionString
 }
 
 Write-Host "Compilando front hacia $api\wwwroot ..." -ForegroundColor Cyan
@@ -39,3 +47,4 @@ $env:ASPNETCORE_ENVIRONMENT = "Development"
 dotnet restore
 if ($LASTEXITCODE -ne 0) { throw "No se pudieron restaurar los paquetes .NET." }
 dotnet run --launch-profile http
+
