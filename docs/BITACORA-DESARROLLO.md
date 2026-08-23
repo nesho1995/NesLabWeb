@@ -57,6 +57,7 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - La facturación de nuevas órdenes clasifica todos los exámenes como exentos: ISV en cero, importe gravado en cero e importe exento igual al subtotal después del descuento.
 - La selección de exámenes se rediseñó como catálogo táctil con cuadros visuales, iconos clínicos, precio, estado seleccionado y total, adaptable a tablets y computadoras.
 - El iniciador agrega una versión a la URL y la API impide almacenar `index.html` en caché, para que los cambios visuales aparezcan inmediatamente.
+- Se aplicó la propuesta visual al marco completo: menú lateral verde clínico, encabezado con cuenta y conexión, superficies unificadas, panel principal en cuadros y navegación inferior para tablets y teléfonos.
 
 ## Criterios antes de publicar
 

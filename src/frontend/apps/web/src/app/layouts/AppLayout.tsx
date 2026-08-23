@@ -17,16 +17,9 @@ type Props = { children: ReactNode };
 
 function BrandMark() {
   return (
-    <svg className="pro-brand__mark" width="22" height="22" viewBox="0 0 32 32" aria-hidden>
-      <defs>
-        <linearGradient id="prolg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#3b82f6" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="4" width="14" height="20" rx="2" fill="url(#prolg)" opacity="0.95" />
-      <rect x="16" y="8" width="12" height="12" rx="2" fill="#0ea5e9" opacity="0.9" />
-      <path d="M8 24h6v2H6v-2h2z" fill="#e0f2fe" />
+    <svg className="pro-brand__mark" width="24" height="24" viewBox="0 0 24 24" aria-hidden>
+      <path d="M9 3h4v6.5l4 4A4.4 4.4 0 0 1 13.9 21H8.1A4.4 4.4 0 0 1 5 13.5l4-4V3Z" />
+      <path d="M7 14h8M7 18h8M8 3h6" />
     </svg>
   );
 }
@@ -178,15 +171,19 @@ export function AppLayout({ children }: Props) {
             <h1 className="pro-topbar__h">{label}</h1>
             {subtitle && <p className="pro-topbar__sub">{subtitle}</p>}
           </div>
-          <div
-            className={`pro-topbar__badge ${isOnline ? 'is-online' : 'is-offline'}`}
-            title={isOnline ? 'Conexion activa con el servidor' : 'Sin internet. Operacion en modo degradado.'}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <rect x="5" y="11" width="14" height="10" rx="1" />
-              <path d="M7 11V8a5 5 0 0 1 10 0v3" />
-            </svg>
-            {isOnline ? 'Conectado' : 'Sin internet'}
+          <div className="pro-topbar__account">
+            <div
+              className={`pro-topbar__badge ${isOnline ? 'is-online' : 'is-offline'}`}
+              title={isOnline ? 'Conexion activa con el servidor' : 'Sin internet. Operacion en modo degradado.'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <rect x="5" y="11" width="14" height="10" rx="1" />
+                <path d="M7 11V8a5 5 0 0 1 10 0v3" />
+              </svg>
+              {isOnline ? 'Conectado' : 'Sin internet'}
+            </div>
+            <div className="pro-topbar__avatar" aria-hidden>{(user?.fullName || 'U').trim().charAt(0).toUpperCase()}</div>
+            <div className="pro-topbar__username"><strong>{user?.fullName}</strong><span>{(user?.roles ?? [])[0] || 'Usuario'}</span></div>
           </div>
         </header>
         {!isOnline ? (
@@ -214,7 +211,15 @@ export function AppLayout({ children }: Props) {
           </div>
         ) : null}
         <section className="pro-content">{children}</section>
+        <nav className="pro-mobile-nav" aria-label="Navegación rápida móvil">
+          <Link to="/" className={pathname === '/' ? 'is-active' : ''}><AppNavIcon name="home" /><span>Inicio</span></Link>
+          {has('ORDEN.CREATE') && <Link to="/orders" className={pathname === '/orders' ? 'is-active' : ''}><AppNavIcon name="pos" /><span>Orden</span></Link>}
+          {has('MUESTRA.GESTION') && <Link to="/lab/muestras" className={pathname.startsWith('/lab/muestras') ? 'is-active' : ''}><AppNavIcon name="sample" /><span>Muestras</span></Link>}
+          {has('RESULTADOS.VALIDAR') && <Link to="/lab/resultados" className={pathname.startsWith('/lab/resultados') ? 'is-active' : ''}><AppNavIcon name="results" /><span>Resultados</span></Link>}
+          {hasAny(['ORDEN.READ', 'ORDEN.CREATE']) && <Link to="/ordenes" className={pathname.startsWith('/ordenes') ? 'is-active' : ''}><AppNavIcon name="inbox" /><span>Órdenes</span></Link>}
+        </nav>
       </div>
     </div>
   );
 }
+
