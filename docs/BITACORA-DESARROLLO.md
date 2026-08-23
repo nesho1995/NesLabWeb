@@ -50,6 +50,7 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - Compilación de API Release: 0 advertencias y 0 errores.
 - Instalación limpia: HTTP 200, inicio de sesión de desarrollo correcto y 13 migraciones aplicadas.
 - `scripts/setup-windows.ps1`: ejecutado de principio a fin correctamente.
+- Revisión posterior al PR: contraseñas con caracteres especiales se serializan de forma segura tanto en SQL como en la cadena de conexión.
 
 ## Criterios antes de publicar
 
@@ -64,3 +65,4 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 ## Próximo paso
 
 Auditar el repositorio completo, implementar las mejoras necesarias, simular una instalación limpia y publicar los cambios validados en GitHub.
+
