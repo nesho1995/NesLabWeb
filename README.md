@@ -33,7 +33,6 @@ Sistema web para laboratorio clinico (LIS) con foco en operacion diaria, cumplim
 - [Plan de pruebas formales](docs/PLAN-PRUEBAS-FORMALES.md)
 - [Pruebas E2E](docs/PRUEBAS-E2E.md)
 - [Monitoreo y alertas](docs/MONITOREO-ALERTAS.md)
-- [Asistente IA para conclusiones](docs/ASISTENTE-IA-CONCLUSIONES.md)
 - [Operacion Linux en produccion](docs/PRODUCCION-LINUX-OPS.md)
 - [Seguridad de produccion](docs/SEGURIDAD-PRODUCCION.md)
 - [SLA de soporte](docs/SLA-SOPORTE.md)
@@ -56,3 +55,4 @@ El primer comando crea la base local y compila todo. El segundo abre web y API e
 Las credenciales temporales para una base nueva se muestran únicamente en la pantalla de acceso del entorno de desarrollo. Cámbielas antes de usar datos reales. Para opciones de MySQL, variables de entorno y producción, consulte el manual técnico.
 
 > Para despliegue productivo en servidor, seguir el manual tecnico completo.
+
