@@ -301,7 +301,7 @@ export function NewOrderPage() {
             Nueva orden y facturacion
           </h1>
           <p className="pro-muted" style={{ margin: '6px 0 0' }}>
-            Flujo hondureno: ISV, RTN, consumidor final y correlativo fiscal/interno segun configuracion.
+            Facturación de exámenes exentos de ISV, con RTN, consumidor final y correlativo fiscal o interno.
           </p>
         </div>
       </div>
@@ -412,7 +412,7 @@ export function NewOrderPage() {
             )}
           </p>
           <p className="pro-muted" style={{ margin: 0, fontSize: 12 }}>
-            ISV {formatMoney(result.isv)} | Desc. {formatMoney(result.discountAmount)} |{' '}
+            Exento de ISV | Desc. {formatMoney(result.discountAmount)} |{' '}
             {result.caiMode ? 'SAR' : 'SIN control SAR'}
           </p>
           {!result.caiMode ? (
@@ -729,3 +729,4 @@ export function NewOrderPage() {
     </div>
   );
 }
+
