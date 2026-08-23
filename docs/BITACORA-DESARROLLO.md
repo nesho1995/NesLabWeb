@@ -58,6 +58,8 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - La selección de exámenes se rediseñó como catálogo táctil con cuadros visuales, iconos clínicos, precio, estado seleccionado y total, adaptable a tablets y computadoras.
 - El iniciador agrega una versión a la URL y la API impide almacenar `index.html` en caché, para que los cambios visuales aparezcan inmediatamente.
 - Se aplicó la propuesta visual al marco completo: menú lateral verde clínico, encabezado con cuenta y conexión, superficies unificadas, panel principal en cuadros y navegación inferior para tablets y teléfonos.
+- Se reforzó la alineación responsive: contenedores sin anchos mínimos accidentales, encabezados con ajuste seguro, formularios y acciones apilados en móvil y tablas desplazables dentro de sus tarjetas.
+- Se validaron las pantallas principales en 1440, 1024, 768, 390 y 360 px, sin desplazamiento horizontal de la página.
 
 ## Criterios antes de publicar
 
