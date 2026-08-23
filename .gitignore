@@ -1,0 +1,35 @@
+# .NET build output
+**/bin/
+**/obj/
+TestResults/
+*.user
+*.suo
+
+# Frontend dependencies and output
+**/node_modules/
+**/dist/
+src/backend/NesLab.Api/wwwroot/assets/
+src/backend/NesLab.Api/wwwroot/index.html
+
+# Runtime data
+**/logs/
+*.log
+src/backend/NesLab.Api/wwwroot/uploads/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+
+# Editors and operating systems
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test tooling
+playwright-report/
+test-results/
+
