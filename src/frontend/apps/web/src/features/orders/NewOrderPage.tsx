@@ -83,6 +83,7 @@ export function NewOrderPage() {
   const [selectedPatient, setSelectedPatient] = useState<PatientListItem | null>(null);
   const [selectedExamIds, setSelectedExamIds] = useState<Set<number>>(() => new Set());
   const [examQ, setExamQ] = useState('');
+  const [isExamPickerOpen, setIsExamPickerOpen] = useState(false);
   const [discountId, setDiscountId] = useState<number | 'custom'>('custom');
   const [customDiscount, setCustomDiscount] = useState('0');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodListItem[]>([]);
@@ -224,6 +225,15 @@ export function NewOrderPage() {
       return n;
     });
   }, []);
+
+  useEffect(() => {
+    if (!isExamPickerOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsExamPickerOpen(false);
+    };
+    globalThis.addEventListener('keydown', onKeyDown);
+    return () => globalThis.removeEventListener('keydown', onKeyDown);
+  }, [isExamPickerOpen]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -540,46 +550,19 @@ export function NewOrderPage() {
           <div className="pro-exam-catalog__head">
             <div>
               <h2 className="pro-h3" style={{ margin: 0 }}>Seleccionar exámenes</h2>
-              <p className="pro-muted" style={{ margin: '4px 0 0' }}>Toque los cuadros para agregarlos a la orden.</p>
+              <p className="pro-muted" style={{ margin: '4px 0 0' }}>Abra el catálogo grande para buscar y seleccionar cómodamente.</p>
             </div>
             <div className="pro-exam-catalog__summary" aria-live="polite">
               <strong>{selectedExamIds.size}</strong> seleccionados · <strong>{formatMoney(selectedExamsTotal)}</strong>
             </div>
           </div>
-          <div className="pro-field pro-exam-catalog__search">
-            <label htmlFor={`${idBase}-exam-search`}>Buscar examen</label>
-            <input
-              id={`${idBase}-exam-search`}
-              className="pro-input"
-              value={examQ}
-              onChange={(ev) => setExamQ(ev.target.value)}
-              placeholder="Nombre o código del examen"
-              autoComplete="off"
-            />
-          </div>
-          <div className="pro-exam-tiles" role="group" aria-label="Exámenes disponibles">
-            {visibleExams.map((x) => {
-              const selected = selectedExamIds.has(x.id);
-              const kind = examVisualKind(x);
-              return (
-                <button
-                  key={x.id}
-                  type="button"
-                  className={`pro-exam-tile is-${kind}${selected ? ' is-selected' : ''}`}
-                  aria-pressed={selected}
-                  onClick={() => onToggleExam(x.id)}
-                >
-                  <span className="pro-exam-tile__visual"><ExamVisualIcon kind={kind} /></span>
-                  <span className="pro-exam-tile__body">
-                    <span className="pro-exam-tile__name">{x.name}</span>
-                    <span className="pro-exam-tile__meta">{x.code} · Exento de ISV</span>
-                    <span className="pro-exam-tile__price">{formatMoney(x.price)}</span>
-                  </span>
-                  <span className="pro-exam-tile__check" aria-hidden>{selected ? '✓' : '+'}</span>
-                </button>
-              );
-            })}
-            {visibleExams.length === 0 && <p className="pro-muted">No hay exámenes para ese filtro.</p>}
+          <button type="button" className="pro-button pro-exam-picker__open" onClick={() => setIsExamPickerOpen(true)}>
+            Abrir catálogo de exámenes
+          </button>
+          <div className="pro-exam-picker__selected" aria-live="polite">
+            {selectedExamNames.length === 0 ? (
+              <span className="pro-muted">Todavía no ha seleccionado exámenes.</span>
+            ) : selectedExamNames.map((name) => <span className="pro-exam-picker__chip" key={name}>{name}</span>)}
           </div>
           {selectedExamNames.length > 0 && inventoryOverview && inventoryOverview.lowStockReagents > 0 ? (
             <div
@@ -778,6 +761,51 @@ export function NewOrderPage() {
           </div>
         </div>
       </form>
+      {isExamPickerOpen && (
+        <div className="pro-exam-picker" role="dialog" aria-modal="true" aria-labelledby={`${idBase}-exam-title`}>
+          <div className="pro-exam-picker__panel">
+            <header className="pro-exam-picker__header">
+              <div>
+                <p className="pro-topbar__kicker">Nueva orden</p>
+                <h2 id={`${idBase}-exam-title`}>Catálogo de exámenes</h2>
+                <p>Seleccione uno o varios cuadros. La orden se actualiza automáticamente.</p>
+              </div>
+              <button type="button" className="pro-ghost pro-exam-picker__close" onClick={() => setIsExamPickerOpen(false)} aria-label="Cerrar catálogo">Cerrar</button>
+            </header>
+            <div className="pro-exam-picker__toolbar">
+              <div className="pro-field pro-exam-catalog__search">
+                <label htmlFor={`${idBase}-exam-search`}>Buscar por nombre o código</label>
+                <input id={`${idBase}-exam-search`} className="pro-input" value={examQ} onChange={(ev) => setExamQ(ev.target.value)} autoComplete="off" autoFocus />
+              </div>
+              <div className="pro-exam-catalog__summary"><strong>{selectedExamIds.size}</strong> seleccionados · <strong>{formatMoney(selectedExamsTotal)}</strong></div>
+            </div>
+            <div className="pro-exam-picker__catalog">
+              <div className="pro-exam-tiles" role="group" aria-label="Exámenes disponibles">
+                {visibleExams.map((x) => {
+                  const selected = selectedExamIds.has(x.id);
+                  const kind = examVisualKind(x);
+                  return (
+                    <button key={x.id} type="button" className={`pro-exam-tile is-${kind}${selected ? ' is-selected' : ''}`} aria-pressed={selected} onClick={() => onToggleExam(x.id)}>
+                      <span className="pro-exam-tile__visual"><ExamVisualIcon kind={kind} /></span>
+                      <span className="pro-exam-tile__body">
+                        <span className="pro-exam-tile__name">{x.name}</span>
+                        <span className="pro-exam-tile__meta">{x.code} · Exento de ISV</span>
+                        <span className="pro-exam-tile__price">{formatMoney(x.price)}</span>
+                      </span>
+                      <span className="pro-exam-tile__check" aria-hidden>{selected ? '✓' : '+'}</span>
+                    </button>
+                  );
+                })}
+                {visibleExams.length === 0 && <p className="pro-muted">No hay exámenes para ese filtro.</p>}
+              </div>
+            </div>
+            <footer className="pro-exam-picker__footer">
+              <button type="button" className="pro-ghost" onClick={() => setSelectedExamIds(new Set())}>Limpiar selección</button>
+              <button type="button" className="pro-button" onClick={() => setIsExamPickerOpen(false)}>Usar {selectedExamIds.size} examen(es)</button>
+            </footer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
