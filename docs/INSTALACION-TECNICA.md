@@ -6,9 +6,9 @@ Este documento deja el sistema listo para instalacion local, preproduccion y ser
 
 ## 1.1 Software base
 
-- .NET SDK 8.x
+- .NET SDK 9.x
 - Node.js 20.x o superior
-- MySQL 8.x
+- MySQL 8.4 LTS
 - Git
 
 ## 1.2 Requisitos de servidor (sugerido)
@@ -39,6 +39,23 @@ Recomendado:
 - Configurar URL de API segun entorno si aplica.
 - Construir build de produccion antes de publicar.
 
+## 2.3 Configuracion local predeterminada
+
+El perfil `Development` espera por defecto:
+
+- MySQL en `127.0.0.1:3306`.
+- Base `neslab`.
+- Usuario local `neslab`; la contraseña se solicita durante la preparación y no se guarda en Git.
+- Aplicacion en `http://localhost:5225`.
+
+Puede sustituir cualquier valor mediante variables de entorno. Por ejemplo:
+
+```powershell
+$env:ConnectionStrings__MySql = "Server=127.0.0.1;Port=3306;Database=neslab;User=neslab;Password=otra-clave;SslMode=None;AllowPublicKeyRetrieval=True;"
+```
+
+No reutilice las credenciales locales en produccion.
+
 ## 3. Base de datos
 
 1. Crear base `neslab` (o nombre definido por entorno).
@@ -55,6 +72,25 @@ Si el proyecto aplica migracion automatica al iniciar, validar que el usuario de
 
 ## 4. Ejecucion en desarrollo
 
+## 4.0 Preparacion automatizada en Windows
+
+Con Git, Node.js, .NET y MySQL disponibles en `PATH`, ejecute desde la raiz:
+
+```powershell
+.\scripts\setup-windows.ps1
+.\scripts\dev-local.ps1
+```
+
+Si el usuario administrador de MySQL tiene contrasena:
+
+```powershell
+.\scripts\setup-windows.ps1 -MySqlAdminPassword "SU_CLAVE_LOCAL"
+```
+
+El script usa `npm ci`, compila el frontend, restaura NuGet y compila el backend. La API aplica automáticamente las migraciones al arrancar.
+
+Ambos scripts solicitan las contraseñas de forma segura cuando no se pasan mediante parámetros o variables de entorno.
+
 ## 4.1 Backend
 
 Desde `src/backend/NesLab.Api`:
@@ -62,7 +98,7 @@ Desde `src/backend/NesLab.Api`:
 ```bash
 dotnet restore
 dotnet build
-dotnet run
+dotnet run --launch-profile http
 ```
 
 ## 4.2 Frontend
@@ -70,7 +106,7 @@ dotnet run
 Desde `src/frontend/apps/web`:
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 

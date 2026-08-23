@@ -32,7 +32,7 @@ public class ExamResultFormatAndParameters : Migration
                 orden = table.Column<int>(type: "int", nullable: false),
                 unidad = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                 referencia = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
-                activo = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: true)
+                activo = table.Column<bool>(type: "tinyint(1)", nullable: false)
             },
             constraints: table =>
             {

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import * as XLSX from 'xlsx';
 import { CrossModuleLinks } from '../../shared/components/CrossModuleLinks';
 import { useAuth } from '../auth/AuthProvider';
 import { getFinanceSummary } from '../lab-reportes/labDashboard.api';
@@ -72,10 +71,11 @@ export function FinancePage() {
           type="button"
           className="pro-button"
           disabled={!data || exporting}
-          onClick={() => {
+          onClick={async () => {
             if (!data) return;
             setExporting(true);
             try {
+              const XLSX = await import('xlsx');
               const wb = XLSX.utils.book_new();
               const resumen = [
                 ['Desde', fromDate],

@@ -10,27 +10,15 @@ namespace NesLab.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<bool>(
-                name: "activo",
-                table: "examen_parametros",
-                type: "tinyint(1)",
-                nullable: false,
-                oldClrType: typeof(bool),
-                oldType: "tinyint(1)",
-                oldDefaultValue: true);
+            // This migration was generated before examen_parametros was created by
+            // 20260424120000_ExamResultFormatAndParameters. Keep it as a no-op so a
+            // brand-new database can apply the migration chain in timestamp order.
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<bool>(
-                name: "activo",
-                table: "examen_parametros",
-                type: "tinyint(1)",
-                nullable: false,
-                defaultValue: true,
-                oldClrType: typeof(bool),
-                oldType: "tinyint(1)");
+            // No-op; the table does not exist at this point in the migration chain.
         }
     }
 }

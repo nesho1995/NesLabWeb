@@ -38,12 +38,21 @@ Sistema web para laboratorio clinico (LIS) con foco en operacion diaria, cumplim
 - [Seguridad de produccion](docs/SEGURIDAD-PRODUCCION.md)
 - [SLA de soporte](docs/SLA-SOPORTE.md)
 - [Proceso de tickets](docs/PROCESO-TICKETS.md)
+- [Bitacora de desarrollo](docs/BITACORA-DESARROLLO.md)
 
 ## Inicio rapido (desarrollo)
 
-1. Configurar MySQL y cadena de conexion.
-2. Configurar secretos de JWT en API.
-3. Ejecutar API (`NesLab.Api`) y frontend (`apps/web`) para desarrollo.
-4. Verificar login, ordenes, caja, inventario y sincronizacion offline.
+Requisitos: .NET SDK 9, Node.js 20 o superior, MySQL 8.4 LTS y Git.
+
+En Windows, desde PowerShell en la raiz del repositorio:
+
+```powershell
+.\scripts\setup-windows.ps1
+.\scripts\dev-local.ps1
+```
+
+El primer comando crea la base local y compila todo. El segundo abre web y API en `http://localhost:5225`; al iniciar, EF Core aplica las migraciones pendientes y crea los datos iniciales.
+
+Las credenciales temporales para una base nueva se muestran únicamente en la pantalla de acceso del entorno de desarrollo. Cámbielas antes de usar datos reales. Para opciones de MySQL, variables de entorno y producción, consulte el manual técnico.
 
 > Para despliegue productivo en servidor, seguir el manual tecnico completo.

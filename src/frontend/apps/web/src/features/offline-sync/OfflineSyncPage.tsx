@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import * as XLSX from 'xlsx';
 import { createOrder } from '../orders/newOrder.api';
 import { addSyncRegularization, listSyncRegularizations, type SyncRegularizationRow } from './offlineSync.api';
 import {
@@ -101,7 +100,8 @@ export function OfflineSyncPage() {
     }
   }
 
-  function exportRegularizationsExcel() {
+  async function exportRegularizationsExcel() {
+    const XLSX = await import('xlsx');
     const rows = (serverRows.length > 0 ? serverRows : regularized).map((r) => ({
       Provisional: r.tempId,
       OrdenFinalId: r.orderId,
