@@ -304,9 +304,8 @@ export function SarFiscalPage() {
           )}
         </p>
         <p className="pro-muted" style={{ margin: 0 }}>
-          <strong>ISV</strong>: el impuesto al valor agregado se aplica con la tasa vigente por linea
-          o por totales, segun politica y comprobante; en NesLab, las ordenes validan criterio fiscal
-          (consumidor final, exonerado, crédito) antes de asignar correlativo.
+          <strong>ISV</strong>: los exámenes de laboratorio se registran como exentos. NESLAB conserva
+          RTN, consumidor final y los controles fiscales correspondientes antes de asignar correlativo.
         </p>
       </div>
       {canConfigSar ? (
@@ -490,3 +489,4 @@ export function SarFiscalPage() {
     </div>
   );
 }
+
