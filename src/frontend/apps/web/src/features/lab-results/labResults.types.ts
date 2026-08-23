@@ -6,7 +6,6 @@ export type PagedResult<T> = {
   page: number;
   pageSize: number;
 };
-
 export type ResultLineItem = {
   lineId: number;
   orderId: number;
@@ -24,27 +23,3 @@ export type ResultLineItem = {
   validatedByName: string | null;
 };
 
-export type AiConclusionReference = {
-  title: string;
-  url: string;
-  source: string;
-  publishedAtUtc: string | null;
-};
-
-export type AiConclusionSuggestion = {
-  draftConclusion: string;
-  interpretation: string;
-  suggestedFollowUp: string;
-  limitations: string;
-  disclaimer: string;
-  confidenceLevel: string;
-  references: AiConclusionReference[];
-  parameterEvaluations: Array<{
-    name: string;
-    status: string;
-    value: string | null;
-    unit: string | null;
-    referenceText: string | null;
-    notes: string | null;
-  }>;
-};

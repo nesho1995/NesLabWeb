@@ -51,6 +51,9 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - Instalación limpia: HTTP 200, inicio de sesión de desarrollo correcto y 13 migraciones aplicadas.
 - `scripts/setup-windows.ps1`: ejecutado de principio a fin correctamente.
 - Revisión posterior al PR: contraseñas con caracteres especiales se serializan de forma segura tanto en SQL como en la cadena de conexión.
+- Se retiró por completo el asistente de conclusiones por IA: interfaz, API, servicio Python, configuración, auditoría, documentación y pruebas dedicadas. La captura y validación manual de resultados continúa disponible.
+- Se agregó GitHub Actions para compilar frontend y backend, ejecutar pruebas y auditar dependencias automáticamente en cada PR y cambio a `master`.
+- Se eliminó la contraseña MySQL de respaldo incrustada en el backend; ahora la cadena `ConnectionStrings:MySql` debe estar configurada explícitamente.
 
 ## Criterios antes de publicar
 
@@ -64,5 +67,5 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 
 ## Próximo paso
 
-Auditar el repositorio completo, implementar las mejoras necesarias, simular una instalación limpia y publicar los cambios validados en GitHub.
+Mantener las pruebas y revisar periódicamente accesibilidad, copias de seguridad y tiempos de respuesta en los módulos con más datos.
 
