@@ -303,9 +303,15 @@ export function LabExamsPage() {
       {error && <p className="pro-alert">{error}</p>}
 
       {canWrite && (
-        <div className="pro-panels" aria-label="Crear o editar examen">
-          <form className="pro-card" onSubmit={editing ? onUpdate : onCreate} aria-label={editing ? 'Formulario de edicion' : 'Nuevo examen'}>
-            <h3 className="pro-h3">{editing ? 'Editar examen' : 'Nuevo examen'}</h3>
+        <div className={editing ? 'pro-exam-config-modal' : 'pro-panels'} aria-label="Crear o editar examen" role={editing ? 'dialog' : undefined} aria-modal={editing ? true : undefined}>
+          <form className={editing ? 'pro-card pro-exam-config-modal__panel' : 'pro-card'} onSubmit={editing ? onUpdate : onCreate} aria-label={editing ? 'Configuración de campos y referencias' : 'Nuevo examen'}>
+            <div className="pro-exam-config-modal__head">
+              <div>
+                <p className="pro-topbar__kicker" style={{ margin: 0 }}>{editing ? 'Campos y referencias' : 'Catálogo'}</p>
+                <h3 className="pro-h3">{editing ? editing.name : 'Nuevo examen'}</h3>
+              </div>
+              {editing && <button className="pro-ghost is-small" type="button" onClick={() => setEditing(null)}>Cerrar</button>}
+            </div>
             <div className="pro-hint" style={{ margin: '0 0 0.75rem' }}>
               Si dejas el codigo en blanco, se genera uno unico de forma automatica.
             </div>
@@ -554,7 +560,7 @@ export function LabExamsPage() {
                     {canWrite && (
                       <td className="is-right">
                         <button className="pro-ghost is-small" type="button" onClick={() => setEditing(r)}>
-                          Editar
+                          Campos y referencias
                         </button>
                       </td>
                     )}
@@ -657,3 +663,4 @@ function toRow(u: { id: number; code: string; name: string; price: number; isAct
     resultFormat: u.resultFormat === 'panel' ? 'panel' : 'texto',
   };
 }
+
