@@ -38,6 +38,35 @@ function formatMoney(n: number) {
   return new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(n);
 }
 
+type ExamVisualKind = 'blood' | 'chemistry' | 'urine' | 'immunology' | 'general';
+
+function examVisualKind(exam: LabExamListItem): ExamVisualKind {
+  const text = `${exam.code} ${exam.name}`.toLowerCase();
+  if (/hemo|sangre|hemat|plaqueta|eritro|leuco/.test(text)) return 'blood';
+  if (/orina|uro|renal/.test(text)) return 'urine';
+  if (/inmun|embarazo|horm|tsh|t3|t4|vih/.test(text)) return 'immunology';
+  if (/gluc|lip|colesterol|quim|hep|creatin|acido|prote/.test(text)) return 'chemistry';
+  return 'general';
+}
+
+function ExamVisualIcon({ kind }: { kind: ExamVisualKind }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="pro-exam-tile__svg">
+      {kind === 'blood' ? (
+        <path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12Zm-2.5 13.5c.7 1.2 1.7 1.8 3 1.8" />
+      ) : kind === 'urine' ? (
+        <><path d="M8 3h8M9 3v5l-4 8a3 3 0 0 0 2.7 4h8.6a3 3 0 0 0 2.7-4l-4-8V3" /><path d="M7 15h10" /></>
+      ) : kind === 'immunology' ? (
+        <><circle cx="12" cy="12" r="8" /><path d="M12 8v8M8 12h8" /></>
+      ) : kind === 'chemistry' ? (
+        <><path d="M9 3h6M10 3v6l-5 8a2.5 2.5 0 0 0 2.2 4h9.6A2.5 2.5 0 0 0 19 17l-5-8V3" /><path d="M8 15h8" /></>
+      ) : (
+        <><path d="M6 3h12v18H6z" /><path d="M9 8h6M9 12h6M9 16h4" /></>
+      )}
+    </svg>
+  );
+}
+
 export function NewOrderPage() {
   const { hasPermission, hasAnyPermission } = useAuth();
   const can = hasPermission('ORDEN.CREATE');
@@ -171,6 +200,11 @@ export function NewOrderPage() {
 
   const selectedExamNames = useMemo(
     () => exams.filter((x) => selectedExamIds.has(x.id)).map((x) => x.name),
+    [exams, selectedExamIds]
+  );
+
+  const selectedExamsTotal = useMemo(
+    () => exams.filter((x) => selectedExamIds.has(x.id)).reduce((sum, x) => sum + x.price, 0),
     [exams, selectedExamIds]
   );
 
@@ -502,31 +536,49 @@ export function NewOrderPage() {
           </ul>
         </div>
 
-        <div className="pro-card" style={{ gridColumn: '1 / -1' }}>
-          <h2 className="pro-h3" style={{ margin: '0 0 8px' }}>
-            Examenes
-          </h2>
-          <div className="pro-field" style={{ marginBottom: 8 }}>
-            <label>Buscar examen</label>
+        <div className="pro-card pro-exam-catalog" style={{ gridColumn: '1 / -1' }}>
+          <div className="pro-exam-catalog__head">
+            <div>
+              <h2 className="pro-h3" style={{ margin: 0 }}>Seleccionar exámenes</h2>
+              <p className="pro-muted" style={{ margin: '4px 0 0' }}>Toque los cuadros para agregarlos a la orden.</p>
+            </div>
+            <div className="pro-exam-catalog__summary" aria-live="polite">
+              <strong>{selectedExamIds.size}</strong> seleccionados · <strong>{formatMoney(selectedExamsTotal)}</strong>
+            </div>
+          </div>
+          <div className="pro-field pro-exam-catalog__search">
+            <label htmlFor={`${idBase}-exam-search`}>Buscar examen</label>
             <input
+              id={`${idBase}-exam-search`}
               className="pro-input"
               value={examQ}
               onChange={(ev) => setExamQ(ev.target.value)}
-              placeholder="Nombre o código"
+              placeholder="Nombre o código del examen"
               autoComplete="off"
             />
           </div>
-          <div className="pro-exam-pick" role="group" aria-label="Examen">
-            {visibleExams.map((x) => (
-              <label key={x.id} className="pro-cb">
-                <input
-                  type="checkbox"
-                  checked={selectedExamIds.has(x.id)}
-                  onChange={() => onToggleExam(x.id)}
-                />
-                {x.name} <span className="pro-muted">— {formatMoney(x.price)}</span>
-              </label>
-            ))}
+          <div className="pro-exam-tiles" role="group" aria-label="Exámenes disponibles">
+            {visibleExams.map((x) => {
+              const selected = selectedExamIds.has(x.id);
+              const kind = examVisualKind(x);
+              return (
+                <button
+                  key={x.id}
+                  type="button"
+                  className={`pro-exam-tile is-${kind}${selected ? ' is-selected' : ''}`}
+                  aria-pressed={selected}
+                  onClick={() => onToggleExam(x.id)}
+                >
+                  <span className="pro-exam-tile__visual"><ExamVisualIcon kind={kind} /></span>
+                  <span className="pro-exam-tile__body">
+                    <span className="pro-exam-tile__name">{x.name}</span>
+                    <span className="pro-exam-tile__meta">{x.code} · Exento de ISV</span>
+                    <span className="pro-exam-tile__price">{formatMoney(x.price)}</span>
+                  </span>
+                  <span className="pro-exam-tile__check" aria-hidden>{selected ? '✓' : '+'}</span>
+                </button>
+              );
+            })}
             {visibleExams.length === 0 && <p className="pro-muted">No hay exámenes para ese filtro.</p>}
           </div>
           {selectedExamNames.length > 0 && inventoryOverview && inventoryOverview.lowStockReagents > 0 ? (

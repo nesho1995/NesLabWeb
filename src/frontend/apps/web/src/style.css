@@ -2453,3 +2453,106 @@ a.pro-tile .pro-ico-wrap {
     min-height: 74px;
   }
 }
+
+/* Catalogo visual de examenes: optimizado para mouse y tablet */
+.pro-exam-catalog__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.pro-exam-catalog__summary {
+  flex-shrink: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: #e8f5f3;
+  color: #096b66;
+  font-size: 0.9rem;
+}
+.pro-exam-catalog__search { max-width: 520px; margin-bottom: 14px; }
+.pro-exam-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding: 2px 5px 6px 2px;
+}
+.pro-exam-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  color: #173238;
+  background: #fff;
+  border: 1px solid #dbe6e8;
+  border-radius: 15px;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.pro-exam-tile:hover { transform: translateY(-2px); border-color: #0f8b83; box-shadow: 0 8px 20px rgba(15, 93, 89, 0.10); }
+.pro-exam-tile:focus-visible { outline: 3px solid rgba(15, 139, 131, 0.28); outline-offset: 2px; }
+.pro-exam-tile.is-selected { border-color: #087f78; box-shadow: 0 0 0 2px rgba(8, 127, 120, 0.18); }
+.pro-exam-tile__visual {
+  display: grid;
+  place-items: center;
+  height: 92px;
+  color: #27709c;
+  background: #e8f3fb;
+}
+.pro-exam-tile.is-blood .pro-exam-tile__visual { color: #ad4642; background: #fdebea; }
+.pro-exam-tile.is-urine .pro-exam-tile__visual { color: #82701c; background: #fff4d9; }
+.pro-exam-tile.is-immunology .pro-exam-tile__visual { color: #704eac; background: #f0eafd; }
+.pro-exam-tile.is-chemistry .pro-exam-tile__visual { color: #28709d; background: #e6f1fb; }
+.pro-exam-tile__svg { width: 44px; height: 44px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.pro-exam-tile__body { display: flex; flex: 1; flex-direction: column; padding: 12px; }
+.pro-exam-tile__name { font-weight: 750; line-height: 1.3; }
+.pro-exam-tile__meta { margin-top: 5px; color: #647b80; font-size: 0.78rem; line-height: 1.3; }
+.pro-exam-tile__price { margin-top: 10px; color: #087f78; font-size: 1rem; font-weight: 800; }
+.pro-exam-tile__check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #087f78;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 900;
+}
+.pro-exam-tile.is-selected .pro-exam-tile__check { color: #fff; background: #087f78; }
+
+/* El panel principal usa cuadros profesionales en pantallas amplias */
+@media (min-width: 760px) {
+  .pro-bay__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px; }
+  .pro-bay__tiles a.pro-tile,
+  .pro-bay__tiles a.pro-tile:first-of-type { border: 1px solid #e2e8f0; border-radius: 12px; min-height: 88px; }
+}
+@media (max-width: 1100px) { .pro-exam-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .pro-exam-catalog__head { align-items: flex-start; flex-direction: column; }
+  .pro-exam-catalog__summary { width: 100%; }
+  .pro-exam-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; overflow: visible; }
+}
+@media (max-width: 420px) {
+  .pro-exam-tiles { gap: 9px; }
+  .pro-exam-tile__visual { height: 74px; }
+  .pro-exam-tile__svg { width: 36px; height: 36px; }
+  .pro-exam-tile__body { padding: 10px; }
+  .pro-exam-tile__name { font-size: 0.9rem; }
+}
+@media (prefers-color-scheme: dark) {
+  .pro-exam-catalog__summary { background: #173b39; color: #70d1ca; }
+  .pro-exam-tile { color: #e8f1f2; background: #172326; border-color: #304145; }
+  .pro-exam-tile__meta { color: #9fb2b6; }
+  .pro-exam-tile__check { background: rgba(23, 35, 38, 0.92); }
+}
+

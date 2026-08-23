@@ -55,6 +55,7 @@ Este archivo conserva el contexto operativo del proyecto para evitar repetir an�
 - Se agregó GitHub Actions para compilar frontend y backend, ejecutar pruebas y auditar dependencias automáticamente en cada PR y cambio a `master`.
 - Se eliminó la contraseña MySQL de respaldo incrustada en el backend; ahora la cadena `ConnectionStrings:MySql` debe estar configurada explícitamente.
 - La facturación de nuevas órdenes clasifica todos los exámenes como exentos: ISV en cero, importe gravado en cero e importe exento igual al subtotal después del descuento.
+- La selección de exámenes se rediseñó como catálogo táctil con cuadros visuales, iconos clínicos, precio, estado seleccionado y total, adaptable a tablets y computadoras.
 
 ## Criterios antes de publicar
 
