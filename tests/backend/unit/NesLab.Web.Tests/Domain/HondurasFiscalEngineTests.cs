@@ -76,16 +76,16 @@ public class HondurasFiscalEngineTests
         Assert.Equal("R-00000003", r.FormattedNumber);
     }
 
-    [Fact(DisplayName = "Usuario: totales con ISV 15% incluye descuento e ISV redondeado")]
-    public void Totales_IsvYRedondeo()
+    [Fact(DisplayName = "Usuario: los exámenes son exentos de ISV y respetan el descuento")]
+    public void Totales_ExamenesExentos()
     {
-        var (subBase, subFinal, disc, isv, total) = HondurasFiscalEngine.ComputeTotals(
-            [(100m, 0m), (200m, 10m)], 0.15m);
+        var (subBase, subFinal, disc, isv, total) = HondurasFiscalEngine.ComputeExemptExamTotals(
+            [(100m, 0m), (200m, 10m)]);
         Assert.Equal(300m, subBase);
         Assert.Equal(280m, subFinal);
         Assert.Equal(20m, disc);
-        Assert.Equal(42m, isv);
-        Assert.Equal(322m, total);
+        Assert.Equal(0m, isv);
+        Assert.Equal(280m, total);
     }
 
     [Theory(DisplayName = "Usuario: credito fiscal exige RTN 14 digitos; consumidor final acepta")]
@@ -95,3 +95,4 @@ public class HondurasFiscalEngineTests
     public void RtnOConsumidorFinal(string? rtn, bool final, bool ok) =>
         Assert.Equal(ok, HondurasFiscalEngine.IsRtn14DigitsOrFinalConsumer(rtn, final));
 }
+

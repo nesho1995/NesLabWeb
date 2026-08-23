@@ -206,9 +206,10 @@ export function OrderVoucherPage() {
 
   const c = data.company;
   const dp = datePartsHn(data.orderAtUtc);
-  const importeExento = 0;
+  const isHistoricalTaxedOrder = data.isv > 0.0001;
+  const importeExento = isHistoricalTaxedOrder ? 0 : Math.max(0, data.subtotalExams);
   const importeExonerado = 0;
-  const importeGravado15 = Math.max(0, data.subtotalExams);
+  const importeGravado15 = isHistoricalTaxedOrder ? Math.max(0, data.subtotalExams) : 0;
   const isv15 = Math.max(0, data.isv);
   const totalFiscal = Math.max(0, data.total);
   const isCredito = data.saldo > 0.0001;
@@ -512,3 +513,4 @@ export function OrderVoucherPage() {
     </div>
   );
 }
+

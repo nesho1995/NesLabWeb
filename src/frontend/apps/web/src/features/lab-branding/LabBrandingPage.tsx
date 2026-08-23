@@ -205,7 +205,7 @@ th{text-transform:uppercase;font-size:11px;background:#f8fafc;text-align:left}
   </table>
   <div class="grid" style="margin-top:8px">
     <div class="box"><strong>Valor en letras:</strong><br/>DOSCIENTOS SETENTA LEMPIRAS CON 00/100</div>
-    <div class="box"><strong>Importe gravado 15%:</strong> L 234.78<br/><strong>ISV 15%:</strong> L 35.22<br/><strong>Total:</strong> L 270.00</div>
+    <div class="box"><strong>Importe exento:</strong> L 270.00<br/><strong>ISV 15%:</strong> L 0.00<br/><strong>Total:</strong> L 270.00</div>
   </div>
 </div></body></html>`;
     w.document.open();
@@ -283,3 +283,4 @@ th{text-transform:uppercase;font-size:11px;background:#f8fafc;text-align:left}
     </form>
   );
 }
+

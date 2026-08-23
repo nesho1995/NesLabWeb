@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NesLab.Application.Abstractions;
 using NesLab.Application.DTOs;
 using NesLab.Application.Fiscal;
@@ -16,20 +15,16 @@ namespace NesLab.Infrastructure.Services;
 
 public sealed class OrderService : IOrderService
 {
-    private const decimal DefaultIsv = 0.15m;
     private static readonly TimeZoneInfo HondurasTimeZone = ResolveHondurasTimeZone();
-    private readonly IConfiguration _configuration;
     private readonly ICurrentUserContext _current;
     private readonly ITenantContext _tenant;
     private readonly NesLabDbContext _db;
 
     public OrderService(
-        IConfiguration configuration,
         ICurrentUserContext current,
         ITenantContext tenant,
         NesLabDbContext db)
     {
-        _configuration = configuration;
         _current = current;
         _tenant = tenant;
         _db = db;
@@ -202,7 +197,6 @@ public sealed class OrderService : IOrderService
         string? idempotencyKey,
         CancellationToken cancellationToken = default)
     {
-        var isv = _configuration.GetValue("Fiscal:IsvRate", DefaultIsv);
         var userId = _current.UserId ?? throw new InvalidOperationException("Se requiere un usuario autenticado para emitir una orden.");
         var companyId = _tenant.CompanyId;
         if (request.Lines is null)
@@ -241,7 +235,7 @@ public sealed class OrderService : IOrderService
         await using var tr = await _db.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            var r = await CreateOrderInTransaction(isv, userId, companyId, request, legalName, rtn, idemK, cancellationToken);
+            var r = await CreateOrderInTransaction(userId, companyId, request, legalName, rtn, idemK, cancellationToken);
             await tr.CommitAsync(cancellationToken);
             return r;
         }
@@ -264,7 +258,6 @@ public sealed class OrderService : IOrderService
     }
 
     private async Task<CreateOrderResultDto> CreateOrderInTransaction(
-        decimal isv,
         int userId,
         int companyId,
         CreateOrderRequest request,
@@ -314,7 +307,7 @@ public sealed class OrderService : IOrderService
         var lineData = request.Lines
             .Select(l => (examById[l.LabExamId].Price, request.DiscountPercent))
             .ToList();
-        var totals = HondurasFiscalEngine.ComputeTotals(lineData, isv);
+        var totals = HondurasFiscalEngine.ComputeExemptExamTotals(lineData);
         if (payDef.RequiresAmountReceived)
         {
             if (request.AmountReceived is null || request.AmountReceived < totals.total)
@@ -508,3 +501,4 @@ public sealed class OrderService : IOrderService
         return TimeZoneInfo.Utc;
     }
 }
+

@@ -109,9 +109,8 @@ public static class HondurasFiscalEngine
         return true;
     }
 
-    public static (decimal subtotalBase, decimal subtotalAfterDiscount, decimal discountAmount, decimal isv, decimal total) ComputeTotals(
-        IReadOnlyList<(decimal basePrice, decimal lineDiscountPercent)> lines,
-        decimal isvRate)
+    public static (decimal subtotalBase, decimal subtotalAfterDiscount, decimal discountAmount, decimal isv, decimal total) ComputeExemptExamTotals(
+        IReadOnlyList<(decimal basePrice, decimal lineDiscountPercent)> lines)
     {
         if (lines.Count == 0)
         {
@@ -142,9 +141,8 @@ public static class HondurasFiscalEngine
         {
             disc = 0;
         }
-        var isv = Math.Round(subFinal * isvRate, 2, MidpointRounding.AwayFromZero);
-        var tot = subFinal + isv;
-        return (subBase, subFinal, disc, isv, tot);
+        const decimal isv = 0m;
+        return (subBase, subFinal, disc, isv, subFinal);
     }
 
     public static TimeZoneInfo GetHondurasTimeZone()
@@ -167,3 +165,4 @@ public readonly record struct FiscalReservation(
     string? Rango,
     DateTime FechaLimite,
     bool CaiMode);
+
