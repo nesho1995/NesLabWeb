@@ -15,8 +15,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("MySql")
-            ?? "Server=localhost;Port=3306;Database=neslab;User=neslab;Password=neslab;";
+        var connectionString = configuration.GetConnectionString("MySql");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("ConnectionStrings:MySql es obligatoria.");
+        }
 
         var serverVersion = new MySqlServerVersion(new Version(8, 4, 0));
         services.AddDbContext<NesLabDbContext>(options =>
@@ -42,15 +45,7 @@ public static class DependencyInjection
         services.AddScoped<ILabDashboardService, LabDashboardService>();
         services.AddScoped<IReagentInventoryService, ReagentInventoryService>();
         services.AddScoped<IOfflineSyncService, OfflineSyncService>();
-        var aiBaseUrl = configuration["AiAssistant:BaseUrl"] ?? "http://127.0.0.1:8091";
-        var aiTimeoutSeconds = Math.Clamp(configuration.GetValue<int?>("AiAssistant:TimeoutSeconds") ?? 8, 3, 30);
-        services.AddHttpClient<IClinicalConclusionAssistant, PythonClinicalConclusionAssistant>(
-            client =>
-            {
-                client.BaseAddress = new Uri(aiBaseUrl);
-                client.Timeout = TimeSpan.FromSeconds(aiTimeoutSeconds);
-            });
-
         return services;
     }
 }
+
